@@ -2,7 +2,6 @@ import numpy as np
 from roboticstoolbox import DHRobot, RevoluteMDH
 from spatialmath import SE3
 
-
 # ---------------------------------------------------------
 #  BRAZO 6R (Robot A y Robot B)
 # ---------------------------------------------------------
@@ -40,7 +39,7 @@ def build_robot_arm():
 
 
 # ---------------------------------------------------------
-#  ROBOT A (en el origen del mundo)
+#  ROBOT A (en el origen)
 # ---------------------------------------------------------
 
 def build_robot_A():
@@ -48,13 +47,13 @@ def build_robot_A():
     robotA = DHRobot(
         arm_links,
         name='RobotA',
-        base=SE3(0, 0, 0)   # en el origen
+        base=SE3(0, 0, 0)
     )
     return robotA
 
 
 # ---------------------------------------------------------
-#  ROBOT B (idéntico a A, pero desplazado 0.75 m en X)
+#  ROBOT B (base fija desplazada 0.75 m)
 # ---------------------------------------------------------
 
 def build_robot_B():
@@ -62,6 +61,6 @@ def build_robot_B():
     robotB = DHRobot(
         arm_links,
         name='RobotB',
-        base=SE3(0.75, 0, 0)   # desplazado 0.75 m en X
+        base=SE3(0.75, 0, 0)
     )
     return robotB
