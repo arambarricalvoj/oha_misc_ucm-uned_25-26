@@ -3,7 +3,9 @@
 \section*{Revisión y desarrollo de la propuesta técnica de búsqueda local}
 \addcontentsline{toc}{section}{Revisión y desarrollo de la propuesta técnica de búsqueda local y propuesta final}
 En esta sección se describen las correcciones introducidas a partir de la revisión del profesorado
-sobre la propuesta inicial de búsqueda local. Tras incorporar dichas modificaciones se observó que
+sobre la propuesta inicial de búsqueda local, se resuelve el problema y se exponen los resultados obtenidos.\\
+
+Tras incorporar dichas modificaciones se observó que
 el algoritmo de optimización comenzaba a mostrar un nivel significativo de ruido en la evaluación del coste.
 Este ruido estaba asociado a la elevada dimensionalidad del espacio de búsqueda que introducía
 soluciones no factibles desde el inicio. \\
@@ -33,10 +35,10 @@ desviaciones típicas diferenciadas (\(\sigma_p, \sigma_q, \sigma_s\)) adaptadas
 a la naturaleza y rango de cada tipo de variable. \\
 
 Estas observaciones se han incorporado en la actualización de la propuesta
-mediante un rediseño en dos niveles. En el Nivel 1 se filtran puntos
-cinemáticamente válidos (IK + manipulabilidad), reduciendo la dimensionalidad
+mediante un rediseño en dos niveles. En el nivel 1 se filtran puntos
+cinemáticamente válidos, reduciendo la dimensionalidad
 efectiva del problema y eliminando gran parte del ruido en la evaluación. En el
-Nivel 2 se emplea un Temple Simulado con parámetros \(\sigma\) diferenciados y
+nivel 2 se emplea un Temple Simulado con
 una temperatura inicial \(T_0\) ajustada a la magnitud real de \(\Delta J\),
 logrando así un comportamiento más estable, eficiente y coherente con la teoría
 del método.
@@ -58,16 +60,16 @@ Dado este análisis, se ha propuesto una arquitectura basada en dos niveles. En 
 los vecinos y la información que será introducida al algoritmo de Temple Simulado. Estos vecinos se generan
 dentro de la intersección del espacio de trabajo de ambos robots para cuando el raíl está no se ha desplazado,
 puesto que en esta posición la intersección es máxima. Asimismo, estos puntos son cinemáticamente factibles,
-se han fijado las orientaciones acorde a la \autoref{fig:conf} y se obtiene el rango de posiciones del ŕail
-para el que el robot B puede alcanzar la posición generada. \\
+se han fijado las orientaciones acorde a la \autoref{fig:conf} y se obtiene el rango de posiciones del raíl
+para que el robot B pueda alcanzar la posición generada. \\
 
 En el segundo nivel, el algoritmo de Temple Simulado optimiza los perfiles de velocidad y la posición del raíl
 para la posición factible generada, generando vecinos en las variables a optimizar. En el caso del raíl,
 su generación de vecinos está acotada al rango obtenido en el nivel anterior, puesto que garantiza que sea alcanzable.\\
 
-Tras resolver exitosamente el problema con este enfoque, se ha observado lo posibilidad de aplicar otra 
+Tras resolver exitosamente el problema con este enfoque, se ha descubierto la posibilidad de aplicar otra 
 metodología:
-establecer un mecanismo de evaluación que determine cómo de lejos se encuentra un punto en el espacio del 
+establecer un mecanismo de evaluación que determine cómo de lejos se encuentra un punto del 
 espacio de trabajo factible para que el algoritmo de Temple Simulado sea capaz de converger hacia puntos factibles.
 No obstante, como ya se había resuelto el problema y dado que se trata de un proyecto académico de una asignatura
 de 6 créditos ECTS, este nuevo enfoque se plantea como línea futura. \\
@@ -92,9 +94,10 @@ $\mathbf{q}_A, \mathbf{q}_B \in S^3$ son cuaterniones unitarios que representan 
 $s_A, s_B, s_{rail} \in (0,1]$ son los factores de velocidad de cada robot y del motor lineal de desplazamiento. \\
 
 Con el objetivo de simplificar el problema, el marco del mundo coincide con el marco del robot A, la base
-del robot B se encuentra desplaza ($0.75 + \textit{posición del raíl}$) metros en el eje $X$ (cumpliendo con 
-la \autoref{fig:conf}, donde el raíl puede tomar cualquier valor entre $[0.0, 0.70]$), y las orientaciones
-son fijas en $\mathbf{q}_A = (0.70710678, 0.70710678, 0.0, 0.0)$ y $\mathbf{q}_B = (0.0, -0.38268343, 0.0, 0.92387953)$. \\
+del robot B se encuentra desplaza ($0.75 + \textit{posición del raíl}$) metros en el eje $X$, donde el raíl puede tomar cualquier valor entre $0.0$ y $0.70$, y las orientaciones
+son fijas en $\mathbf{q}_A = (0.70710678, 0.70710678, 0.0, 0.0)$ y 
+$\mathbf{q}_B = (0.0, -0.38268343, 0.0, 0.92387953)$ (cumpliendo con 
+la \autoref{fig:conf}). \\
 
 Para facilitar la interpretación de dichas orientaciones, se presentan a continuación sus valores en \textit{RPY}
 (\textit{Roll}, \textit{Pitch}, \textit{Yaw}). En el caso del robot A ($\mathbf{q}_A$),
@@ -121,7 +124,8 @@ El proceso consta de tres etapas principales:
     se define automáticamente el punto correspondiente del robot~B como
     \(p_B = p_A + \textit{offset}\), garantizando la distancia relativa requerida
     entre ambos efectores, es decir, cumpliendo las restricciones definidas sobre la separación
-    final en el mundo y la posición de enfrentamiento. \\
+    final en el mundo y la posición de enfrentamiento. Se ha establecido el \textit{offset} a 
+    $0.2$ metros en el eje $x$. \\
 
     Los cilindros de alcance de los dos robots viene dado por el fabricante: un radio de 
     $0.762$ metros y una altura de $1.029$ metros. \\
@@ -142,7 +146,7 @@ El proceso consta de tres etapas principales:
     vacío, el punto se descarta. En caso contrario, se selecciona un valor
     intermedio \(p_{\text{Rail}}\) para evaluar la cinemática inversa.
 
-    \item \textbf{Filtrado cinemático (IK + manipulabilidad).}
+    \item \textbf{Filtrado cinemático y manipulabilidad.}
     Se resuelven las cinemáticas inversas de ambos robots para las orientaciones
     deseadas y se comprueba que las soluciones articulares obtenidas presentan
     una manipulabilidad superior a un umbral mínimo. Solo si se cumplen ambas
@@ -194,10 +198,9 @@ excesivos que desestabilicen el Temple Simulado.
 Como se ha venido explicando, la arquitectura implementada junto con los operadores 
 de vecindad cumplen la mayoría de las restricciones gracias a la incorporación 
 del conocimiento del dominio. De esta manera, la única restricción a verificar por 
-el algoritmo del Temple simulador será la sincronización temporal:
+el algoritmo del Temple Simulado será la sincronización temporal:
 
-\[\big|t_A(\mathbf{p}_A,\mathbf{q}_A,\mathbf{s}_A)-t_B(\mathbf{p}_B,\mathbf{q}_B,\mathbf{s}_B,\mathbf{s}_{rail})\big| \le \Delta t_{\max}\].
-
+\[\big|t_A(\mathbf{p}_A,\mathbf{q}_A,\mathbf{s}_A)-t_B(\mathbf{p}_B,\mathbf{q}_B,\mathbf{s}_B,\mathbf{s}_{rail})\big| \le \Delta t_{\max}.\]
 Por tanto, la evaluación de cada solución se basa en esta diferencia temporal:
 cuanto más próximos estén ambos tiempos, mejor será la calidad de la solución. Se ha 
 modificado la función de penalización correspondiente para cumplir con 
@@ -321,10 +324,10 @@ menor que la inicial, es decir, \(T_N \approx 10^{-2} T_0\), se obtiene:
 
 Sustituyendo \(N = 300\) se obtiene:
 \[
-\alpha \approx 10^{-2/300} \approx 0.95.
+\alpha \approx 10^{-2/300} \approx 0.98.
 \]
 
-Por tanto, el valor \(\alpha = 0.95\) no es arbitrario, sino que garantiza un
+Por tanto, el valor \(\alpha = 0.98\) no es arbitrario, sino que garantiza un
 descenso suave de la temperatura a lo largo de las 300 iteraciones disponibles,
 manteniendo capacidad exploratoria en las primeras fases y favoreciendo la
 convergencia en las finales.\\
@@ -449,7 +452,7 @@ Tiempo medio de ejecución (s) & 0.83 s \\
 
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.17]{Images/tema2/boxplot_Tmax.png}
+  \includegraphics[scale=0.2]{Images/tema2/boxplot_Tmax.png}
   \caption{Diagrama de caja de la solución temporal.}
   \label{fig:cajaT}
 \end{figure}
@@ -463,7 +466,7 @@ para los robots. En la \autoref{fig:visP} se visualizan en tres dimensiones los 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.14]{Images/tema2/boxplot_pA_x_pB_x.png}
+  \includegraphics[scale=0.18]{Images/tema2/boxplot_pA_x_pB_x.png}
   \caption{Diagrama de caja del punto espacial.}
   \label{fig:cajaP}
 \end{figure}
@@ -498,7 +501,8 @@ nula.
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.16]{Images/tema2/convergencia_media.png}
-  \caption{Curva media de convergecia del método desarrollado.}
+  \caption{Curva media de convergecia del método desarrollado, donde se aprecia la disminución
+  de la penalización J.}
   \label{fig:curvaMedia}
 \end{figure}
 

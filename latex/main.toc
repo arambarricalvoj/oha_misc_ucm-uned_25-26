@@ -1,24 +1,25 @@
 \babel@toc {spanish}{}\relax 
-\contentsline {section}{Tarea}{4}{section*.6}%
-\contentsline {section}{Propuesta: optimización del \textit {rendezvous} para dos \textit {cobots} cooperativos}{5}{section*.8}%
-\contentsline {subsection}{Variables de decisión}{7}{section*.12}%
-\contentsline {subsection}{Función objetivo}{7}{section*.13}%
-\contentsline {subsection}{Restricciones}{8}{section*.14}%
-\contentsline {subsection}{Función de mérito penalizada}{9}{section*.15}%
-\contentsline {subsection}{Notas}{10}{section*.16}%
-\contentsline {section}{Propuesta técnica de búsqueda local}{12}{section*.18}%
-\contentsline {subsection}{Algoritmo elegido}{12}{section*.19}%
-\contentsline {subsection}{Diseño del algoritmo}{12}{section*.20}%
-\contentsline {subsection}{Configuración de parámetros}{13}{section*.24}%
-\contentsline {subsection}{Diseño experimental}{13}{section*.25}%
-\contentsline {subsection}{Resultados (esquema)}{13}{section*.26}%
-\contentsline {subsection}{Conclusiones (expectativas)}{14}{section*.30}%
-\contentsline {section}{Revisión y desarrollo de la propuesta técnica de búsqueda local y propuesta final}{15}{section*.32}%
-\contentsline {subsection}{Revisión del profesorado}{15}{section*.33}%
-\contentsline {subsection}{Diseño de la búsqueda de la solución}{15}{section*.34}%
-\contentsline {subsection}{Diseño del algoritmo}{16}{section*.35}%
-\contentsline {subsection}{Configuración de parámetros}{19}{section*.40}%
-\contentsline {subsection}{Diseño experimental}{20}{section*.41}%
-\contentsline {subsection}{Resultados}{21}{section*.42}%
-\contentsline {subsection}{Conclusiones}{24}{section*.49}%
-\contentsline {section}{Referencias adicionales al Campus Virtual}{25}{section*.51}%
+\contentsline {section}{Introducción}{4}{section*.6}%
+\contentsline {section}{Tarea}{5}{section*.8}%
+\contentsline {section}{Propuesta: optimización del \textit {rendezvous} para dos \textit {cobots} cooperativos}{6}{section*.10}%
+\contentsline {subsection}{Variables de decisión}{8}{section*.14}%
+\contentsline {subsection}{Función objetivo}{8}{section*.15}%
+\contentsline {subsection}{Restricciones}{9}{section*.16}%
+\contentsline {subsection}{Función de mérito penalizada}{10}{section*.17}%
+\contentsline {subsection}{Notas}{11}{section*.18}%
+\contentsline {section}{Propuesta técnica de búsqueda local}{13}{section*.20}%
+\contentsline {subsection}{Algoritmo elegido}{13}{section*.21}%
+\contentsline {subsection}{Diseño del algoritmo}{13}{section*.22}%
+\contentsline {subsection}{Configuración de parámetros}{14}{section*.26}%
+\contentsline {subsection}{Diseño experimental}{14}{section*.27}%
+\contentsline {subsection}{Resultados (esquema)}{14}{section*.28}%
+\contentsline {subsection}{Conclusiones (expectativas)}{15}{section*.32}%
+\contentsline {section}{Revisión y desarrollo de la propuesta técnica de búsqueda local y propuesta final}{16}{section*.34}%
+\contentsline {subsection}{Revisión del profesorado}{16}{section*.35}%
+\contentsline {subsection}{Diseño de la búsqueda de la solución}{16}{section*.36}%
+\contentsline {subsection}{Diseño del algoritmo}{17}{section*.37}%
+\contentsline {subsection}{Configuración de parámetros}{20}{section*.42}%
+\contentsline {subsection}{Diseño experimental}{21}{section*.43}%
+\contentsline {subsection}{Resultados}{22}{section*.44}%
+\contentsline {subsection}{Conclusiones}{25}{section*.51}%
+\contentsline {section}{Referencias adicionales al Campus Virtual}{26}{section*.53}%

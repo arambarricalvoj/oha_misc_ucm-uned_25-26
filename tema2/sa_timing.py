@@ -3,7 +3,7 @@ from vecinos import generate_timing_neighbor
 from evaluate import merit_function
 
 def sa_timing_level(sol_init, max_iters=300,
-                    T0=1.0, alpha=0.95):
+                    T0=1.0, alpha=0.98):
 
     current = sol_init.copy()
     best = current.copy()
