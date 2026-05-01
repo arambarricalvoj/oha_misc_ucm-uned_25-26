@@ -23,6 +23,7 @@ def compute_times(sol):
     A: sin raíl
     B: raíl desde PRAIL_START hasta sol.pRail
     """
+    
     # Robot A
     pA = sol.pA
     lA = np.linalg.norm(pA)
@@ -40,6 +41,25 @@ def compute_times(sol):
 
     return tA, tB
 
+
+"""
+def compute_times(sol):
+    # Robot A
+    qA = sol.qA
+    lA = np.linalg.norm(qA - np.zeros_like(qA))
+    tA = lA / (sol.sA * V_ARM_A + 1e-9)
+
+    # Robot B
+    qB = sol.qB
+    lB = np.linalg.norm(qB - np.zeros_like(qB))
+
+    dist_rail_B = abs(sol.pRail - PRAIL_START)
+    tRail = dist_rail_B / (sol.sRail * V_RAIL + 1e-9)
+
+    tB = tRail + lB / (sol.sB * V_ARM_B + 1e-9)
+
+    return tA, tB
+"""
 
 def penalty_separation(sol):
     eje = np.array([1.0, 0.0, 0.0])

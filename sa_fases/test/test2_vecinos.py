@@ -182,7 +182,7 @@ ax.plot(rail_x, rail_y, rail_z, 'k-', linewidth=3, label='Raíl')
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 ax.set_zlabel("Z")
-ax.set_title("Vista final — todos los puntos")
+ax.set_title("Visualización 3D de la generación de puntos factibles mediante muestreo geométrico")
 ax.legend()
 
 plt.show()
