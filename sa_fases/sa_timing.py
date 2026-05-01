@@ -2,7 +2,6 @@ import numpy as np
 from vecinos import generate_timing_neighbor
 from evaluate import merit_function
 
-
 def sa_timing_level(sol_init, max_iters=300,
                     T0=1.0, alpha=0.95):
 
@@ -11,10 +10,12 @@ def sa_timing_level(sol_init, max_iters=300,
 
     J_current, tA_current, tB_current = merit_function(current)
     J_best = J_current
-
-    best_iter = 0   # <-- para registrar en qué iteración se logró el mejor J
+    best_iter = 0
 
     T = T0
+
+    # === NUEVO: historial para curvas de convergencia ===
+    history_J = [J_current]
 
     for k in range(max_iters):
 
@@ -35,26 +36,15 @@ def sa_timing_level(sol_init, max_iters=300,
             tA_current = tA_n
             tB_current = tB_n
 
-            # Registrar mejor solución
             if J_current < J_best:
                 J_best = J_current
                 best = current.copy()
-                best_iter = k   # <-- guardamos la iteración exacta
+                best_iter = k
 
         T *= alpha
 
-        # Imprimir evolución
-        if k % 50 == 0:
-            print(f"[Iter {k}] J={J_current:.4f}, "
-                    f"tA={tA_current:.3f}, tB={tB_current:.3f}, "
-                    f"sA={current.sA:.2f}, sB={current.sB:.2f}, "
-                    f"sRail={current.sRail:.2f}, pRail={current.pRail:.3f}")
+        # === NUEVO ===
+        history_J.append(J_current)
 
-    # Al final, imprimir la mejor iteración
-    print("\n>>> Mejor solución encontrada en iteración", best_iter)
-    print(f"    J_best={J_best:.4f}")
-    print(f"    tA_best={tA_current:.3f}, tB_best={tB_current:.3f}")
-    print(f"    sA={best.sA:.2f}, sB={best.sB:.2f}, "
-          f"sRail={best.sRail:.2f}, pRail={best.pRail:.3f}")
-
-    return best
+    # === NUEVO: devolver todo lo necesario ===
+    return best, J_best, best_iter, history_J
