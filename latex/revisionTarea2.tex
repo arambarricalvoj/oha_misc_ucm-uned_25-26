@@ -1,0 +1,828 @@
+\newpage
+\datos{color}{}{}
+\section*{Revisión y desarrollo de la propuesta técnica de búsqueda local}
+\addcontentsline{toc}{section}{Revisión y desarrollo de la propuesta técnica de búsqueda local y propuesta final}
+En esta sección se describen las correcciones introducidas a partir de la revisión del profesorado
+sobre la propuesta inicial de búsqueda local. Tras incorporar dichas modificaciones se observó que
+el algoritmo de optimización comenzaba a mostrar un nivel significativo de ruido en la evaluación del coste.
+Este ruido estaba asociado a la elevada dimensionalidad del espacio de búsqueda que introducía
+soluciones no factibles desde el inicio. \\
+
+Para mitigar este efecto, se ha realizado un análisis específico orientado a reducir la dimensionalidad 
+efectiva del problema y filtrar las soluciones no válidas antes de la optimización. En concreto, se 
+ha resuelto el problema diseñando una arquitectura de dos niveles.
+
+\subsection*{Revisión del profesorado}
+\addcontentsline{toc}{subsection}{Revisión del profesorado}
+En la revisión de la propuesta inicial, el profesorado señaló dos aspectos
+que debían corregirse en el diseño del Temple Simulado. En primer lugar, se indicó
+que la temperatura inicial \(T_0\) no debía fijarse de forma arbitraria, sino
+sintonizarse en función de la escala real de los incrementos de coste
+\(\Delta J\) observados en las primeras iteraciones. El objetivo es garantizar
+una tasa de aceptación inicial elevada (del orden del 80--90\%) para
+empeoramientos, evitando que el algoritmo se comporte como una búsqueda ávida
+(Hill Climbing) si \(T_0\) resulta demasiado baja para la magnitud de la función
+de mérito. \\
+
+En segundo lugar, se advirtió que el uso de una única desviación típica
+\(\sigma = 0.1\) para todas las variables no era adecuado, ya que posiciones,
+orientaciones y factores de velocidad operan en escalas muy distintas. Esto puede
+provocar mutaciones desbalanceadas: algunas variables se hiper-mutaban mientras
+otras permanecían prácticamente estáticas. Por ello, se recomendó definir
+desviaciones típicas diferenciadas (\(\sigma_p, \sigma_q, \sigma_s\)) adaptadas
+a la naturaleza y rango de cada tipo de variable. \\
+
+Estas observaciones se han incorporado en la actualización de la propuesta
+mediante un rediseño en dos niveles. En el Nivel 1 se filtran puntos
+cinemáticamente válidos (IK + manipulabilidad), reduciendo la dimensionalidad
+efectiva del problema y eliminando gran parte del ruido en la evaluación. En el
+Nivel 2 se emplea un Temple Simulado con parámetros \(\sigma\) diferenciados y
+una temperatura inicial \(T_0\) ajustada a la magnitud real de \(\Delta J\),
+logrando así un comportamiento más estable, eficiente y coherente con la teoría
+del método.
+
+\subsection*{Diseño de la búsqueda de la solución}
+\addcontentsline{toc}{subsection}{Diseño de la búsqueda de la solución}
+Con la propuesta inicial se podían generar vecinos que estuvieran fuera del espacio de trabajo 
+de los robots, por lo que desde el inicio eran puntos no factibles. Su perturbación para la generación 
+de nuevos vecinos no incluía ningún mecanismo que pudiera acerca el nuevo punto al espacio de trabajo. 
+Por tanto, el algoritmo tenía una alta probabilidad de ser incapaz de explorar correctamente soluciones 
+factibles. \\
+
+Además, la naturaleza del problema implica que un mismo punto en el espacio tenga comportamientos diferentes 
+según los perfiles de velocidad y la posición del raíl aplicada. Consecuentemente, los perfiles de
+velocidad y la posición del raíl tienen que ser optimizados para cada punto factible, y después, optimizar 
+esas soluciones completas, es decir, quedarse con la mejor. \\
+
+Dado este análisis, se ha propuesto una arquitectura basada en dos niveles. En el primer nivel se generan 
+los vecinos y la información que será introducida al algoritmo de Temple Simulado. Estos vecinos se generan
+dentro de la intersección del espacio de trabajo de ambos robots para cuando el raíl está no se ha desplazado,
+puesto que en esta posición la intersección es máxima. Asimismo, estos puntos son cinemáticamente factibles,
+se han fijado las orientaciones acorde a la \autoref{fig:conf} y se obtiene el rango de posiciones del ŕail
+para el que el robot B puede alcanzar la posición generada. \\
+
+En el segundo nivel, el algoritmo de Temple Simulado optimiza los perfiles de velocidad y la posición del raíl
+para la posición factible generada, generando vecinos en las variables a optimizar. En el caso del raíl,
+su generación de vecinos está acotada al rango obtenido en el nivel anterior, puesto que garantiza que sea alcanzable.\\
+
+Tras resolver exitosamente el problema con este enfoque, se ha observado lo posibilidad de aplicar otra 
+metodología:
+establecer un mecanismo de evaluación que determine cómo de lejos se encuentra un punto en el espacio del 
+espacio de trabajo factible para que el algoritmo de Temple Simulado sea capaz de converger hacia puntos factibles.
+No obstante, como ya se había resuelto el problema y dado que se trata de un proyecto académico de una asignatura
+de 6 créditos ECTS, este nuevo enfoque se plantea como línea futura. \\
+
+
+\subsection*{Diseño del algoritmo}
+\addcontentsline{toc}{subsection}{Diseño del algoritmo}
+
+\subsubsection*{Representación de las soluciones}
+Cada solución candidata se representa como un vector continuo:
+\[
+\mathbf{x} =
+(\mathbf{p}_A,\mathbf{p}_B,
+\mathbf{q}_A,\mathbf{q}_B,
+s_A,s_B,s_{rail})
+\in \mathbb{R}^{18},
+\]
+
+donde $\mathbf{p}_A \in \mathbb{R}^3, \mathbf{p}_B \in \mathbb{R}^4$ son las posiciones objetivo de cada robot en el marco
+del mundo, incluyendo la posición del raíl optmizada para el robot B,
+$\mathbf{q}_A, \mathbf{q}_B \in S^3$ son cuaterniones unitarios que representan orientaciones de cada efector y
+$s_A, s_B, s_{rail} \in (0,1]$ son los factores de velocidad de cada robot y del motor lineal de desplazamiento. \\
+
+Con el objetivo de simplificar el problema, el marco del mundo coincide con el marco del robot A, la base
+del robot B se encuentra desplaza ($0.75 + \textit{posición del raíl}$) metros en el eje $X$ (cumpliendo con 
+la \autoref{fig:conf}, donde el raíl puede tomar cualquier valor entre $[0.0, 0.70]$), y las orientaciones
+son fijas en $\mathbf{q}_A = (0.70710678, 0.70710678, 0.0, 0.0)$ y $\mathbf{q}_B = (0.0, -0.38268343, 0.0, 0.92387953)$. \\
+
+Para facilitar la interpretación de dichas orientaciones, se presentan a continuación sus valores en \textit{RPY}
+(\textit{Roll}, \textit{Pitch}, \textit{Yaw}). En el caso del robot A ($\mathbf{q}_A$),
+la orientación deseada corresponde a los ángulos en radianes \((\pi,\ \pi/2,\ 0)\), lo que
+equivale a una rotación de \(180^\circ\) alrededor del eje \(x\) seguida de una
+rotación de \(90^\circ\) alrededor del eje \(y\). Para el robot B ($\mathbf{q}_B$), la
+orientación especificada es \((0,\ -\pi/2,\ 0)\), es decir, una rotación de
+\(-90^\circ\) alrededor del eje \(y\).
+
+
+\subsubsection*{Operadores de vecindad}
+En primer lugar, se presenta la generación de vecinos para el nivel 1 de la arquitectura planteada.
+En este nivel el operador de vecindad ya no se basa en perturbaciones gaussianas. En su lugar, se ha
+diseñado un generador de vecinos específico para la naturaleza geométrica y cinemática del problema, 
+cuyo objetivo es producir únicamente puntos factibles para ambos robots antes de iniciar la optimización
+temporal del nivel 2. \\
+
+El proceso consta de tres etapas principales:
+
+\begin{enumerate}
+    \item \textbf{Muestreo geométrico en el espacio de trabajo.}
+    Se genera un punto candidato \(p_A\) mediante muestreo uniforme dentro de la
+    intersección de los cilindros de alcance de los dos robots. A partir de él
+    se define automáticamente el punto correspondiente del robot~B como
+    \(p_B = p_A + \textit{offset}\), garantizando la distancia relativa requerida
+    entre ambos efectores, es decir, cumpliendo las restricciones definidas sobre la separación
+    final en el mundo y la posición de enfrentamiento. \\
+
+    Los cilindros de alcance de los dos robots viene dado por el fabricante: un radio de 
+    $0.762$ metros y una altura de $1.029$ metros. \\
+
+    En la \autoref{fig:muestreo} se observa visualmente la generación de estos puntos 
+    factibles.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.4]{Images/muestreo.png}
+        \caption{Visualización 3D de la generación de puntos espaciales factibles.}
+        \label{fig:muestreo}
+    \end{figure}
+
+    \item \textbf{Comprobación de factibilidad del raíl.}
+    Para el punto \(p_B\) se calcula el intervalo de posiciones del raíl
+    \([r_{\min}, r_{\max}]\) que permiten alcanzarlo. Si dicho intervalo es
+    vacío, el punto se descarta. En caso contrario, se selecciona un valor
+    intermedio \(p_{\text{Rail}}\) para evaluar la cinemática inversa.
+
+    \item \textbf{Filtrado cinemático (IK + manipulabilidad).}
+    Se resuelven las cinemáticas inversas de ambos robots para las orientaciones
+    deseadas y se comprueba que las soluciones articulares obtenidas presentan
+    una manipulabilidad superior a un umbral mínimo. Solo si se cumplen ambas
+    condiciones, el punto se acepta como vecino válido. Este filtrado corresponde 
+    con la restricción de singularidades.
+
+    Del trabajo realizado en la asignatura de Robótica Industrial del Máster 
+    se conoce que los valores típicos de manipulabilidad en el espacio de trabajo
+    de ambos robots presentan valores superiores a \(0.05\), mientras que las 
+    configuraciones cercanas a singularidades caen por debajo de dicho rango. 
+    Por este motivo se ha fijado un umbral conservador en $0.08$.
+\end{enumerate}
+
+En segundo lugar, el operador de vecindad del nivel 2 sí se basa en perturbaciones 
+gaussianas, pero aplicadas únicamente a las variables temporales. Estas variables operan
+en rangos similares, por lo que ambas perturbaciones sí pueden utilizar la misma 
+desviación típica, $\sigma = 0.05$, que permite explorar
+variaciones apreciables en el tiempo de ejecución sin producir saltos
+excesivos que desestabilicen el Temple Simulado.
+
+\begin{itemize}
+    \item \textbf{Factores de velocidad}.  
+    Cada velocidad escalar se perturba mediante
+\[
+        s_r' = s_r + \mathcal{N}(0,\sigma_s^2),
+        \qquad r \in \{A, B, \text{Rail}\},
+    \]
+    seguida de un truncamiento para garantizar la factibilidad física:
+\[
+        s_r' \leftarrow \min\big(1,\max(0,s_r')\big).
+    \]
+
+    \item \textbf{Posición del raíl}.  
+    La posición final del raíl se perturba mediante
+\[
+        p_{\text{Rail}}' = p_{\text{Rail}} + \mathcal{N}(0,\sigma_{\text{rail}}^2),
+    \]
+    y posteriormente se proyecta al intervalo factible calculado en el nivel 1:
+\[
+        p_{\text{Rail}}' \leftarrow
+        \min\big(r_{\max},\max(r_{\min},p_{\text{Rail}}')\big).
+    \]
+    Esta operación garantiza que el robot~B pueda alcanzar el punto \(p_B\) tras
+    la mutación.
+
+\end{itemize}
+
+\subsubsection*{Gestión de restricciones}
+Como se ha venido explicando, la arquitectura implementada junto con los operadores 
+de vecindad cumplen la mayoría de las restricciones gracias a la incorporación 
+del conocimiento del dominio. De esta manera, la única restricción a verificar por 
+el algoritmo del Temple simulador será la sincronización temporal:
+
+\[\big|t_A(\mathbf{p}_A,\mathbf{q}_A,\mathbf{s}_A)-t_B(\mathbf{p}_B,\mathbf{q}_B,\mathbf{s}_B,\mathbf{s}_{rail})\big| \le \Delta t_{\max}\].
+
+Por tanto, la evaluación de cada solución se basa en esta diferencia temporal:
+cuanto más próximos estén ambos tiempos, mejor será la calidad de la solución. Se ha 
+modificado la función de penalización correspondiente para cumplir con 
+este planteamiento:
+\[
+P_{\text{sync}}(\Delta t) =
+\begin{cases}
+\left(\dfrac{\Delta t}{\Delta t_{\max}}\right)^2,
+& \text{si } \Delta t \le \Delta t_{\max}, \\
+1 + \left(\dfrac{\Delta t - \Delta t_{\max}}{\Delta t_{\max}}\right)^2,
+& \text{si } \Delta t > \Delta t_{\max}.
+\end{cases}
+\]
+
+Es importante destacar que con esta modificación la restricción de sincronización
+no se aplica como un filtro duro que descarte soluciones que excedan el umbral
+\(\Delta t_{\max}\). En su lugar, la restricción se incorpora mediante una
+\emph{penalización continua} que permite al Temple Simulado seguir explorando el
+espacio de soluciones incluso cuando la diferencia temporal es superior al
+límite deseado. De este modo se evita la aparición de zonas ciegas en la función
+de mérito y se mantiene un gradiente útil para guiar la búsqueda. \\
+
+De este modo, el Temple Simulado explora libremente el espacio de búsqueda,
+mientras que la función de evaluación guía la convergencia hacia soluciones que
+cumplen las restricciones, en este caso, la sincronización temporal.
+
+\subsection*{Configuración de parámetros}
+\addcontentsline{toc}{subsection}{Configuración de parámetros}
+
+Conociendo el modelo del tiempo de ejecución de cada robot utilizado, descrito
+en la propuesta de esta memoria, los datos geométricos del problema, el
+alcance máximo de los robots y el recorrido máximo del raíl, es posible acotar
+de forma aproximada los tiempos de ejecución:
+
+
+\[
+t_r \in [t_{\min}, t_{\max}] \approx [0.5\,\text{s},\, 2.5\,\text{s}].
+\]
+
+
+
+En consecuencia, la desincronización máxima teórica entre ambos robots se sitúa
+en el orden de
+
+
+\[
+\Delta t_{\max}^{\text{teo}} \approx t_{\max} - t_{\min} \approx 2\,\text{s}.
+\]
+
+
+
+Sin embargo, el operador de vecindad del nivel 2 no genera saltos extremos, sino
+pequeñas variaciones en los factores de velocidad y en la posición del raíl
+(\(\sigma_s = 0.05\), \(\sigma_{\text{rail}} = 0.05\)). Esto implica que la
+diferencia de tiempos entre soluciones vecinas se sitúa típicamente en el orden
+de unas pocas décimas de segundo, lo que se traduce en una variación de coste
+esperada:
+
+
+\[
+\Delta J_{\text{esp}} \sim P_{\text{sync}}(\Delta t) - P_{\text{sync}}(\Delta t')
+\qquad\Rightarrow\qquad
+\Delta J_{\text{esp}} \in [0.1,\, 0.3].
+\]
+
+
+
+Esta estimación permite sintonizar la temperatura inicial del Temple Simulado
+sin necesidad de recurrir a ejecuciones preliminares ni a ajustes empíricos. El
+objetivo de la temperatura inicial es garantizar una probabilidad de aceptación
+elevada (80--90\%) para empeoramientos típicos de magnitud
+\(\Delta J_{\text{esp}}\). Utilizando la relación clásica del Temple Simulado,
+
+
+\[
+T_0 = -\frac{\Delta J_{\text{esp}}}{\ln(p_0)}, \qquad p_0 \in [0.8,0.9],
+\]
+
+
+y tomando como referencia un valor medio \(\Delta J_{\text{esp}} \approx 0.2\),
+se obtiene:
+
+
+\[
+T_0 \approx -\frac{0.2}{\ln(0.85)} \approx 0.96.
+\]
+
+
+
+Por simplicidad se adopta finalmente
+\[
+T_0 = 1,
+\]
+
+valor coherente con la escala temporal del problema y que evita que el algoritmo
+degenere en una búsqueda puramente ávida en las primeras iteraciones. \\
+
+Por otra parte, el enfriamiento empleado es de tipo geométrico, 
+\(T_{k+1} = \alpha\, T_k\), por ser el más habitual en problemas continuos y por su buena 
+relación entre simplicidad y estabilidad. La elección del factor de enfriamiento \(\alpha\) 
+se ha realizado en función del número total de iteraciones disponibles y de la escala de la función
+de mérito. \\
+
+Se define un máximo de \texttt{max\_iters} \(= 300\)
+iteraciones, por lo que el factor de enfriamiento debe garantizar que la temperatura se
+mantenga suficientemente alta durante las primeras fases (para permitir
+exploración) y que descienda de forma progresiva hacia valores cercanos a cero
+en las últimas iteraciones (para favorecer la explotación). Para un enfriamiento
+geométrico, la temperatura tras \(N\) iteraciones es:
+\[
+T_N = T_0\, \alpha^N.
+\]
+
+Imponiendo que la temperatura final sea aproximadamente dos órdenes de magnitud
+menor que la inicial, es decir, \(T_N \approx 10^{-2} T_0\), se obtiene:
+\[
+\alpha^N \approx 10^{-2}
+\quad\Rightarrow\quad
+\alpha \approx 10^{-2/N}.
+\]
+
+Sustituyendo \(N = 300\) se obtiene:
+\[
+\alpha \approx 10^{-2/300} \approx 0.95.
+\]
+
+Por tanto, el valor \(\alpha = 0.95\) no es arbitrario, sino que garantiza un
+descenso suave de la temperatura a lo largo de las 300 iteraciones disponibles,
+manteniendo capacidad exploratoria en las primeras fases y favoreciendo la
+convergencia en las finales.\\
+
+El proceso de optimización temporal utiliza un máximo de
+\texttt{max\_iters} \(= 300\) iteraciones. Este valor sustituye al esquema
+clásico de dos bucles del Temple Simulado (con \(K\) temperaturas y \(L\)
+vecinos por temperatura), debido a la propia naturaleza de la arquitectura en
+dos niveles. \\
+
+En un Temple Simulado convencional, el esquema \(K \times L\) es necesario para
+compensar la presencia de un espacio de búsqueda ruidoso, con restricciones
+complejas y con una elevada probabilidad de generar soluciones no factibles.
+Sin embargo, en la arquitectura propuesta, el nivel 1 garantiza que todas las
+soluciones que llegan al nivel 2 son geométrica y cinemáticamente factibles,
+están libres de singularidades y cumplen las restricciones del raíl. Como
+consecuencia, el espacio de búsqueda del nivel 2 es continuo, de baja
+dimensionalidad y completamente factible, por lo que no requiere un proceso de
+exploración tan intensivo. \\
+
+Además, el operador de vecindad del nivel 2 produce variaciones pequeñas y
+controladas en los parámetros temporales, lo que reduce drásticamente el ruido
+en la función de mérito. En este contexto, el uso de un único bucle con un
+número total de iteraciones fijo resulta más eficiente y permite un control más
+directo sobre el coste computacional. \\
+
+En la práctica, 300 iteraciones proporcionan un equilibrio adecuado entre
+exploración y explotación, permitiendo alcanzar convergencia estable sin
+incrementar de forma excesiva el tiempo de cómputo. En otras palabras, 
+se probarán 300 combinaciones de soluciones por cada punto del nivel 1, siendo un 
+número adecuado dado el amplio espacio de búsqueda combinatorio definido 
+por las cuatro variables continuas a optimizar en el Temple Simulado.
+
+\begin{comment}
+    \begin{itemize}
+    \item Temperatura inicial: $T_0 = 1$
+    \item Factor de enfriamiento: $\alpha = 0.95$
+    \item Iteraciones (movimientos) por temperatura: $L = 50$
+    \item Número máximo de iteraciones (temperaturas): $K = 200$
+    \item Desviación del operador de vecindad: $\sigma = 0.1$
+\end{itemize}
+\end{comment}
+
+\subsection*{Diseño experimental}
+\addcontentsline{toc}{subsection}{Diseño experimental}
+El plan de experimentación constará de la optimización de 
+30 puntos espaciales diferentes. \\
+
+Las soluciones se evaluarán mediante tres métricas: calidad, tiempo de ejecución y número de evaluaciones.
+La calidad registra el mejor y peor 
+valor final de $T_{\max}$, la media, la desviación típica y el intervalo de confianza. El tiempo
+de ejecución mide el tiempo total de \textit{CPU} y se considera con la calidad de la
+solución lograda. Esta consideración se realizará a través de un diagrama de dispersión, como 
+el de la Figura \ref{fig:scatterPlotPropuesta}, y 
+un valor de eficiencia calculado: $E = \frac{T_{max}}{\text{tiempo}}$. Por último,
+el número de evaluaciones anota la iteración en la que se alcanzó el mejor valor. \\
+
+\subsection*{Resultados}
+\addcontentsline{toc}{subsection}{Resultados}
+Se han realizado modificaciones sobre la representación de resultados propuesta para evitar 
+la redundancia de información. La \autoref{tab:tema2_tabla1} y la \autoref{fig:scatterPlotPropuesta}
+contenían información duplicada y además, la tabla resultaría difícil de leer por su gran volumen 
+de datos. Por ello, se ha decidido suprimir la tabla. \\
+
+Además, con el objetivo de analizar la estabilidad del método, evaluar la variabilidad entre
+ejecuciones y estudiar el comportamiento dinámico del algoritmo durante el proceso de optimización
+se añaden dos diagramas de cajas y la curva media de convergencia. Un diagrama de caja representa
+el valor de $T_{\text{máx}}$ y otro los diferentes 
+valores de la coordenada $x$ de los puntos A y B, puesto que las coordenadas $y$ y $z$ están fijadas
+durante el proceso de optimización. \\
+
+Por otro lado, con los cambios realizados ya no existen soluciones infactibles, por lo que no es necesario
+registrar el porcentaje de soluciones factibles obtenidas por el algoritmo.\\
+
+El mejor resultado obtenido viene definido por $T_{\max} = 0.96\, s$ con 
+el vector número 7 (recordar que las orientaciones están previamente fijadas): 
+\[(\mathbf{p}_A,\mathbf{p}_B,
+\mathbf{q}_A,\mathbf{q}_B,
+s_A,s_B,s_{rail}) = 
+((0.35, 0.12, 0.15), (0.55, 0.12, 0.15, p_{\text{raíl}} = 0.5), qA, qB, 0.41, 1, 0.84)\]
+
+Los resultados de la \autoref{tab:tema2_tabla2} muestran que el algoritmo presenta un comportamiento
+estable y consistente a lo largo de las 30 ejecuciones realizadas. El valor medio de $T_{\max}$ es
+de 1.67\,s, con una desviación típica moderada (0.50\,s), lo que indica que la variabilidad entre
+ejecuciones es relativamente baja. El mejor caso alcanza un tiempo de 0.96\,s, mientras que el peor
+se sitúa en 2.88\,s, lo que define el rango completo de rendimiento del método. El intervalo de 
+confianza al 95\,\% $[1.49,\,1.88]$\,s confirma que, con alta probabilidad, el algoritmo converge
+de forma consistente en torno a valores próximos a la media. \\
+
+Por otro lado, el tiempo medio de ejecución del proceso completo es de 0.83\,s, lo que demuestra
+que el método es computacionalmente eficiente y adecuado para escenarios donde se requiere 
+optimización rápida. \\
+
+De forma complementaria, el diagrama de cajas de la \autoref{fig:cajaT} 
+muestra que la mayor parte de las soluciones de $T_{\max}$ se concentran en un intervalo 
+relativamente estrecho. El rango intercuartílico se sitúa aproximadamente entre 1.25\,s y 1.90\,s, 
+lo que indica que el 50\% central de las ejecuciones produce soluciones de calidad similar.
+El bigote inferior desciende hasta aproximadamente 1.00\,s, mientras que el superior alcanza
+valores cercanos a 2.90\,s, lo que refleja la presencia de ejecuciones más extremas, tanto muy
+buenas como menos favorables. No obstante, la ausencia de valores atípicos sugiere que
+estas variaciones se encuentran dentro del comportamiento esperado del método.
+
+%En conjunto, el diagrama evidencia que el algoritmo es estable, con una dispersión moderada y sin
+%comportamientos anómalos.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Métrica} & \textbf{Valor} \\
+\hline
+Media de $T_{\max}$ & 1.67 s \\
+Desviación típica & 0.5 \\
+Mejor valor (mínimo) & 0.96 s \\
+Peor valor (máximo) & 2.88 s \\
+Intervalo de confianza 95\% & [1.49, 1.88] s\\
+Tiempo medio de ejecución (s) & 0.83 s \\
+\hline
+\end{tabular}
+\caption{Métricas agregadas calculadas sobre las 30 ejecuciones.}\label{tab:tema2_tabla2}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.17]{Images/tema2/boxplot_Tmax.png}
+  \caption{Diagrama de caja de la solución temporal.}
+  \label{fig:cajaT}
+\end{figure}
+
+También resulta interesante evaluar la variabilidad en los puntos espaciales explorados. En 
+la \autoref{fig:cajaP} se presenta el diagrama de caja para la coordenada $x$ de los puntos A 
+y B. La mayoría de las soluciones se agrupan en el intervalo $[0.2, 0.4]$ metros y $[0.4, 0.6]$
+metros, lo que
+induce a pensar que esas zonas son las regiones más estables, alcanzables o cinemáticamente factibles
+para los robots. En la \autoref{fig:visP} se visualizan en tres dimensiones los 30 puntos explorados.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.14]{Images/tema2/boxplot_pA_x_pB_x.png}
+  \caption{Diagrama de caja del punto espacial.}
+  \label{fig:cajaP}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.1]{Images/tema2/visualizacion_pA_pB.png}
+  \caption{Visualización de los puntos espaciales factibles optimizados.}
+  \label{fig:visP}
+\end{figure}
+
+En lo relativo a la eficiencia, la \autoref{fig:scatterPlot} muestra que la métrica propuesta no
+aporta nada útil a la evaluación, ya que las soluciones con mayor tiempo de desplazamiento de 
+los robots calculada en el menor tiempo de computación tiene una mayor eficiencia. Esta relación
+no aporta ningún significado. La única información de interés que se obtiene es que el tiempo máximo
+de ejecución es de 3 segundos por punto espacial. Consecuentemente, resulta necesario definir otra métrica. En este 
+caso, se ha optado por la curva de convergencia del método. \\
+
+Esta curva se presenta en la \autoref{fig:curvaMedia}, donde se observa que el algoritmo ha  
+convergido a las 80 iteraciones de las 300 que se realizan, ya que la penalización es prácticamente 
+nula.
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.13]{Images/tema2/scatter_plot_propuesto.png}
+  \caption{Diagrama de dispersión propuesto para la evaluación de la eficiencia de las soluciones. 
+  Cada círculo representa una solución cuyo número adjunto corresponde con el número de ejecución, 
+  el color de las soluciones se refiere a la eficiencia de las mismas, los círculos con borde negro
+  representan las peor y mejor solución, en color rojo y verde, respectivamente, y la recta punteada 
+  la línea de tendencia.}
+  \label{fig:scatterPlot}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.16]{Images/tema2/convergencia_media.png}
+  \caption{Curva media de convergecia del método desarrollado.}
+  \label{fig:curvaMedia}
+\end{figure}
+
+
+%En conjunto, estas métricas cuantitativas permiten concluir que el algoritmo no solo es eficaz
+%en términos de calidad de las soluciones (medida mediante $T_{\max}$), sino también robusto y 
+%estable en su comportamiento estadístico.
+
+
+\subsection*{Conclusiones}
+\addcontentsline{toc}{subsection}{Conclusiones}
+Durante la evaluación de los resultados se ha observado que el algoritmo tiende a converger de forma
+prematura, lo que sugiere que no está explorando completamente el espacio de soluciones
+disponible. Sin embargo, las soluciones proporcionadas son muy lógicas, salvo por los perfiles 
+de velocidad cuando estos reciben el máximo valor posible (1). \\
+
+Resulta evidente que la mejor solución, es decir, aquella con menor tiempo de desplazamiento,
+se obtiene con la máxima velocidad de los robots. Esta situación está introduciendo un sesgo al 
+algoritmo para explorar únicamente perfiles elevados de velocidad, reduciendo el espacio de búsqueda, provocando una convergecia prematura y priorizando la minimización del tiempo a costa de ignorar
+criterios de calidad del movimiento que serían relevantes en un escenario real. \\
+
+Así todo, no todos los perfiles de velocidad optimizados son elevados, puesto que 
+en la mejor solución obtenida la escala de velocidad del robot A es de $0.41$. 
+Consecuentemente, demuestra que a pesar de que el algoritmo tenga un sesgo, es capaz 
+de optimizar parcialmente el punto de encuentro de ambos robots. \\
+
+La eliminación de este sesgo se plantea como línea futura, mediante la introducción
+de alguna restricción sobre aceleración, suavidad o calidad de movimiento. \\
+
+Además, el método implementado es computacionalmente eficiente puesto que 
+los tiempos de ejecución son muy bajos, pudiendo ser utilizado en apliaciones de planificación 
+de trayectorias de robots. \\
+
+Por úlitmo, otro trabajo futuro que se plantea es la resolución del problema con la metodología
+mencionada previamente: establecer un mecanismo de evaluación que determine cómo de lejos se 
+encuentra un punto del espacio de trabajo factible para que el algoritmo de 
+Temple Simulado sea capaz de converger hacia puntos factibles.
+
+\begin{comment}
+
+\[
+p_{\text{sync}}(t_A,t_B) =
+\begin{cases}
+\left(\dfrac{|t_A - t_B|}{\Delta T_{\max}}\right)^2,
+& \text{si } |t_A - t_B| \le \Delta T_{\max}, \
+
+\[10pt]
+1 + \left(\dfrac{|t_A - t_B| - \Delta T_{\max}}{\Delta T_{\max}}\right)^2,
+& \text{si } |t_A - t_B| > \Delta T_{\max}.
+\end{cases}
+\]
+
+
+
+
+\[
+P_{\text{sing}} =
+\sum_{r\in\{A,B\}}
+\begin{cases}
+\left(\dfrac{m_{\min} - m_r}{m_{\min}}\right)^2,
+& \text{si } m_r \le m_{\min}, \
+
+\[10pt]
+0,
+& \text{si } m_r > m_{\min}.
+\end{cases}
+\]
+
+
+
+
+\[
+P_{\text{sing}} =
+\left(\frac{m_{\min}}{m_A}\right)^2
++
+\left(\frac{m_{\min}}{m_B}\right)^2 ,
+\]
+
+
+% ============================================================
+% DISTANCIA ARTICULAR DESDE LA POSTURA INICIAL
+% ============================================================
+
+
+
+\[
+l_A = \|\, q_A - q_{A,0} \,\|
+\]
+
+
+
+
+
+\[
+l_B = \|\, q_B - q_{B,0} \,\|
+\]
+
+
+
+
+
+\[
+q_{A,0} = q_{B,0} = \mathbf{0}
+\]
+
+
+
+
+
+\[
+l_A = \|\, q_A \,\|, 
+\qquad 
+l_B = \|\, q_B \,\|
+\]
+
+
+
+% ============================================================
+% TIEMPO DEL ROBOT A
+% ============================================================
+
+
+
+\[
+t_A = \frac{l_A}{s_A \, v_A}
+\]
+
+
+
+% ============================================================
+% TIEMPO DEL RAÍL DEL ROBOT B
+% ============================================================
+
+
+
+\[
+t_{\text{rail}} 
+= 
+\frac{\left|\, p_{\text{Rail}} - p_{\text{Rail,start}} \,\right|}
+       {s_{\text{Rail}} \, v_{\text{Rail}}}
+\]
+
+
+
+% ============================================================
+% TIEMPO DEL BRAZO DEL ROBOT B
+% ============================================================
+
+
+
+\[
+t_{B,\text{arm}} 
+= 
+\frac{l_B}{s_B \, v_B}
+\]
+
+
+
+% ============================================================
+% TIEMPO TOTAL DEL ROBOT B
+% ============================================================
+
+
+
+\[
+t_B 
+= 
+t_{\text{rail}} + t_{B,\text{arm}}
+\]
+
+
+
+% ============================================================
+% TIEMPO MÁXIMO (CRITERIO DE SINCRONIZACIÓN)
+% ============================================================
+
+
+
+\[
+T_{\max} = \max(t_A,\, t_B)
+\]
+
+
+
+% ============================================================
+% PENALIZACIÓN DE SINCRONIZACIÓN (VERSIÓN SUAVE)
+% ============================================================
+
+
+
+\[
+P_{\text{sync}} =
+\begin{cases}
+\left(\dfrac{|t_A - t_B|}{\Delta_{\max}}\right)^2,
+& |t_A - t_B| \le \Delta_{\max}
+\
+
+\[10pt]
+1 + \left(\dfrac{|t_A - t_B| - \Delta_{\max}}{\Delta_{\max}}\right)^2,
+& |t_A - t_B| > \Delta_{\max}
+\end{cases}
+\]
+
+
+La temperatura inicial \(T_0\) no se ha fijado de forma arbitraria, sino a partir
+de la escala observada de la función de mérito \(J\) en las primeras iteraciones.
+
+En una fase de calibración previa, se generaron soluciones vecinas aleatorias
+a partir de varias soluciones iniciales y se midieron los incrementos de coste
+\(\Delta J = J_{\text{nuevo}} - J_{\text{actual}}\) para aquellos vecinos
+peores que la solución actual. En nuestro problema, los valores típicos de
+\(\Delta J\) en las primeras iteraciones se situaban aproximadamente en el rango
+\([0.05, 0.5]\), con un valor medio alrededor de \(\overline{\Delta J} \approx 0.2\).
+
+En Temple Simulado, la probabilidad de aceptar un empeoramiento de coste
+\(\Delta J > 0\) viene dada por:
+
+
+
+\[
+P_{\text{aceptar}}(\Delta J) = \exp\left(-\frac{\Delta J}{T}\right).
+\]
+
+
+
+Si se desea una tasa de aceptación inicial alta para empeoramientos, por ejemplo
+\(P_{\text{aceptar}} \approx 0.8\) para un empeoramiento típico \(\overline{\Delta J}\),
+puede estimarse la temperatura inicial como:
+
+
+
+\[
+T_0 \approx -\frac{\overline{\Delta J}}{\ln(p_0)},
+\qquad
+p_0 \in [0.8, 0.9].
+\]
+
+
+
+Sustituyendo \(\overline{\Delta J} \approx 0.2\) y \(p_0 = 0.8\), se obtiene:
+
+
+
+\[
+T_0 \approx -\frac{0.2}{\ln(0.8)} \approx 0.9.
+\]
+
+
+
+Por simplicidad y robustez numérica se ha redondeado este valor a \(T_0 = 1\),
+lo que garantiza una probabilidad de aceptación inicial elevada (del orden del
+80--90\% para los empeoramientos típicos observados) y evita que el algoritmo
+degenere en una búsqueda puramente ávida (Hill Climbing) en las primeras fases
+de la exploración.
+
+
+Aunque en la formulación general se menciona una desviación típica genérica
+\(\sigma\), en la implementación práctica se ha tenido en cuenta que las
+distintas variables del problema operan en escalas muy diferentes:
+
+- Posiciones cartesianas \(p\): del orden de metros.
+- Factores de velocidad \(s \in [0,1]\).
+- Posición del raíl \(p_{\text{Rail}} \in [0,0.7]\).
+
+Para evitar hiper-mutar unas variables y dejar prácticamente inalteradas otras,
+se han definido desviaciones típicas específicas por tipo de variable:
+
+
+
+\[
+\sigma_p,\quad \sigma_s,\quad \sigma_{\text{rail}}.
+\]
+
+
+
+En el Nivel 1 (generación de puntos geométricos), las posiciones se generan
+directamente dentro del workspace factible, por lo que no se aplica una
+mutación gaussiana sobre \(p\), sino un muestreo uniforme restringido por la
+geometría y la cinemática (IK + manipulabilidad). En el Nivel 2 (ajuste fino
+de tiempos), las únicas variables mutadas son los factores de velocidad y la
+posición del raíl, para las cuales se han elegido desviaciones típicas
+específicas:
+
+
+
+\[
+s_A, s_B, s_{\text{Rail}} \in [0,1], \qquad
+\sigma_s = 0.05,
+\]
+
+
+
+
+
+\[
+p_{\text{Rail}} \in [0,0.7], \qquad
+\sigma_{\text{rail}} = 0.05.
+\]
+
+
+
+Estas desviaciones se han sintonizado empíricamente para que:
+
+1) La mayoría de las mutaciones produzcan cambios apreciables en el coste
+   (evitando pasos demasiado pequeños que no exploran el espacio), y
+
+2) Una fracción significativa de vecinos siga siendo aceptable, de modo que
+   el Temple Simulado mantenga un buen equilibrio entre exploración y
+   explotación.
+
+En resumen, aunque en la descripción teórica se menciona una \(\sigma\) única,
+en la implementación se ha respetado la escala de cada tipo de variable mediante
+parámetros \(\sigma\) diferenciados, lo que evita desbalances entre la mutación
+de posiciones, velocidades y raíl.
+
+
+En código, esto se refleja en:
+
+\begin{verbatim}
+new.sA = np.clip(new.sA + np.random.normal(0, sigma_s), 0.0, 1.0)
+new.sB = np.clip(new.sB + np.random.normal(0, sigma_s), 0.0, 1.0)
+new.sRail = np.clip(new.sRail + np.random.normal(0, sigma_s), 0.0, 1.0)
+
+new.pRail += np.random.normal(0, sigma_prail)
+new.pRail = np.clip(new.pRail, new.rail_min, new.rail_max)
+\end{verbatim}
+\end{comment}

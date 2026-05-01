@@ -1,0 +1,54 @@
+% !TEX program = xelatex
+\documentclass{InforMeX}
+
+\begin{document}
+\sloppy
+\portada{Máster en Ingeniería de Sistemas y Control}
+{Optimización Heurística y Aplicaciones}
+{Javier Arambarri Calvo}
+{2025/2026}
+{\today}
+{Proyecto: optimización del \textit{rendezvous} para dos \textit{cobots}
+cooperativos}
+
+%%%%%%%%%%%%%%%%%%%%
+% \datos{1}{2}{3}
+%  1- color -> imprime logo en color; cc-> imprime logo en B/N
+%  2- Título del documento
+%  3- Nombre del Vicerrectorado
+%%%%%%%%%%%%%%%%%%%%
+\include{autoria}
+
+\renewcommand{\tablename}{Tabla}
+%\renewcommand{\listtablename}{Índice de tablas}
+
+
+\datos{color}{}{}
+\tableofcontents
+%\newpage
+%\listoffigures
+%\newpage
+%\listoftables
+%\lstlistoflistings
+
+\newpage
+%%%%%%%%%%%%%%%%%%%%
+% \adaptar{1}{2}
+% 1- Si -> aumentar tamaño de letra
+% 2- Si -> Adaptado con colores de Baja Visión
+%%%%%%%%%%%%%%%%%%%%
+\adaptar{no}{no}
+
+\include{tarea}
+\include{propuesta}
+\include{propuesta_tecnica_tema2}
+\include{revisionTarea2}
+%\include{propuesta2}
+%\include{propuesta3}
+
+\newpage
+\datos{color}{}{}
+\printbibliography[title={Referencias adicionales al Campus Virtual}]
+\addcontentsline{toc}{section}{Referencias adicionales al Campus Virtual}
+
+\end{document}

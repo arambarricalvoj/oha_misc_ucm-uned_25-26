@@ -229,6 +229,87 @@ def main():
     plt.savefig("convergencia_media.png", dpi=300)
     plt.close()
 
+    # ============================================================
+    # FIGURA 4: BOXPLOT pA_x vs pB_x
+    # ============================================================
+
+    import pandas as pd
+
+    # Crear DataFrame con pA y pB
+    df = pd.DataFrame({
+        "pA_x": [p[0] for p in pA_list],
+        "pB_x": [p[0] for p in pB_list]
+    })
+
+    plt.figure(figsize=(6,4))
+    plt.boxplot([df["pA_x"], df["pB_x"]], labels=["pA_x", "pB_x"])
+    plt.title("Distribución de coordenadas X de pA y pB")
+    plt.ylabel("Valor en X")
+    plt.tight_layout()
+    plt.savefig("boxplot_pA_x_pB_x.png", dpi=300)
+    plt.close()
+
+    print("Boxplot generado: boxplot_pA_x_pB_x.png")
+
+    # ============================================================
+    # FIGURA 5: VISUALIZACIÓN 3D DE pA Y pB
+    # ============================================================
+
+    from mpl_toolkits.mplot3d import Axes3D
+
+    H_MAX = 0.762
+    Z_MAX = 1.029
+    RAIL_MIN = 0.0
+    RAIL_MAX = 0.70
+
+    pA = np.array(pA_list)
+    pB = np.array(pB_list)
+
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Cilindro de A
+    theta = np.linspace(0, 2*np.pi, 50)
+    z = np.linspace(0, Z_MAX, 20)
+    theta_grid, z_grid = np.meshgrid(theta, z)
+
+    xA = H_MAX * np.cos(theta_grid)
+    yA = H_MAX * np.sin(theta_grid)
+    ax.plot_surface(xA, yA, z_grid, alpha=0.15, color='blue')
+
+    # Cilindro de B (posición central del raíl)
+    cxB = 0.75
+    xB = cxB + H_MAX * np.cos(theta_grid)
+    yB = H_MAX * np.sin(theta_grid)
+    ax.plot_surface(xB, yB, z_grid, alpha=0.15, color='red')
+
+    # Puntos pA y pB
+    ax.scatter(pA[:,0], pA[:,1], pA[:,2], color='blue', s=40, label='pA')
+    ax.scatter(pB[:,0], pB[:,1], pB[:,2], color='red', s=40, label='pB')
+
+    # Líneas offset
+    for a, b in zip(pA, pB):
+        ax.plot([a[0], b[0]], [a[1], b[1]], [a[2], b[2]], 'k--', alpha=0.4)
+
+    # Línea del raíl
+    rail_x = np.linspace(0.75 + RAIL_MIN, 0.75 + RAIL_MAX, 50)
+    rail_y = np.zeros_like(rail_x)
+    rail_z = np.zeros_like(rail_x)
+    ax.plot(rail_x, rail_y, rail_z, 'k-', linewidth=3, label='Raíl')
+
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+    ax.set_title("Visualización 3D de pA y pB obtenidos por el algoritmo")
+    ax.legend()
+
+    plt.tight_layout()
+    plt.savefig("visualizacion_pA_pB.png", dpi=300)
+    plt.close()
+
+    print("Visualización 3D generada: visualizacion_pA_pB.png")
+
+
 
 if __name__ == "__main__":
     main()
