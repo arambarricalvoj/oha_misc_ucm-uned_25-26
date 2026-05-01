@@ -1,4 +1,5 @@
 import numpy as np
+from robots import ik_A, ik_B, manipulability
 
 # Velocidades nominales (ajusta a tu caso real)
 V_RAIL = 1.0
@@ -73,10 +74,28 @@ def penalty_sync(tA, tB, delta_max=0.5):
         # Fuera del margen: penalización fuerte
         return 1.0 + ((dt - delta_max) / delta_max)**2
 
+def penalty_singularity(sol, m_min=0.05):
+    qA, okA = ik_A(sol.pA, sol.RA, np.zeros(6))
+    qB, okB = ik_B(sol.pB, sol.RB, np.zeros(6), sol.pRail)
 
-def penalty_singularity(sol):
+    if not okA or not okB:
+        return 1e6
+
+    mA = manipulability('A', qA)
+    mB = manipulability('B', qB)
+
+    # Evitar división por cero
+    eps = 1e-6
+    mA = max(mA, eps)
+    mB = max(mB, eps)
+
+    return (m_min / mA)**2 + (m_min / mB)**2
+    
+
+"""def penalty_singularity(sol):
     # Placeholder: cuando metas IK + Jacobiano, lo activas aquí
     return 0.0
+"""
 
 """
 def penalty_singularity(sol):
@@ -103,7 +122,7 @@ def merit_function(sol):
     p_sep = penalty_separation(sol)
     p_align = penalty_alignment(sol)
     p_sync = penalty_sync(tA, tB)
-    p_sing = penalty_singularity(sol)
+    p_sing = 0.0 #penalty_singularity(sol)
 
     J = p_sep + p_align + p_sync + p_sing
     return J, tA, tB

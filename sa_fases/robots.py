@@ -53,3 +53,27 @@ def build_robot_B():
         base=SE3(0.75, 0, 0)
     )
     return robotB
+
+def ik_A(pA, R_A, q_seed):
+    robotA = build_robot_A()
+    T = SE3(pA) * SE3.RPY(R_A)   # posición + orientación
+    sol = robotA.ikine_LM(T, q0=q_seed, ilimit=100, tol=1e-4)
+    return sol.q, sol.success
+
+def ik_B(pB, R_B, q_seed, pRail):
+    robotB = build_robot_B()
+    baseB = SE3(pRail, 0, 0)
+    T = SE3(pB) #* SE3.RPY(R_B)
+    T = baseB.inv() * T   # transformar al marco del robot B
+    sol = robotB.ikine_LM(T, q0=q_seed, ilimit=100, tol=1e-4)
+    return sol.q, sol.success
+
+def manipulability(robot, q):
+    if robot == 'A':
+        robot = build_robot_A()
+    elif robot == 'B':
+        robot = build_robot_B()
+
+    J = robot.jacob0(q)
+    _, s, _ = np.linalg.svd(J)
+    return np.min(s)

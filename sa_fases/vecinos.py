@@ -8,6 +8,13 @@ Z_MAX = 1.029
 RAIL_MIN = 0.0
 RAIL_MAX = 0.70
 
+# Manipulabilidad mínima aceptable
+MANIP_MIN = 0.08
+
+
+# ============================================================
+#  GENERACIÓN DE PUNTOS GEOMÉTRICAMENTE FACTIBLES
+# ============================================================
 
 def sample_feasible_point(p_min, p_max,
                           offset=np.array([0.20, 0.0, 0.0]),
@@ -38,9 +45,11 @@ def sample_feasible_point(p_min, p_max,
         pA = np.array([x, y, z])
         pB = pA + offset
 
+        # Dentro del cilindro de A
         if (x - cxA)**2 + (y - cyA)**2 > H_MAX**2:
             continue
 
+        # Dentro del cilindro de B
         if (pB[0] - cxB)**2 + (pB[1] - cyB)**2 > H_MAX**2:
             continue
 
@@ -48,6 +57,10 @@ def sample_feasible_point(p_min, p_max,
 
     raise RuntimeError("No se ha encontrado ningún punto en la intersección de los cilindros.")
 
+
+# ============================================================
+#  INTERVALO DEL RAÍL PARA UN PUNTO pB
+# ============================================================
 
 def rail_interval_for_point(pB, rail_min=RAIL_MIN, rail_max=RAIL_MAX):
     """
@@ -68,30 +81,71 @@ def rail_interval_for_point(pB, rail_min=RAIL_MIN, rail_max=RAIL_MAX):
     return True, r_min, r_max
 
 
+# ============================================================
+#  NIVEL 1: GENERACIÓN DE PUNTOS + FILTRO IK + MANIPULABILIDAD
+# ============================================================
+
 def generate_position_neighbor(sol, p_min, p_max, offset):
     """
-    Nivel 1: genera un nuevo punto pA/pB válido y su intervalo de raíl.
+    Nivel 1: genera un nuevo punto pA/pB válido, factible por IK
+    y con buena manipulabilidad.
     """
-    from solution import Solution  # para evitar ciclos si se importa en otros sitios
+    from solution import Solution
+    from robots import ik_A, ik_B, manipulability, build_robot_A, build_robot_B
 
     if sol is None:
         sol = Solution()
 
-    pA, pB = sample_feasible_point(p_min, p_max, offset)
-    ok, rmin, rmax = rail_interval_for_point(pB)
+    MAX_TRIES = 200
 
-    if not ok:
-        return sol.copy()
+    for _ in range(MAX_TRIES):
 
-    new = sol.copy()
-    new.pA = pA
-    new.pB = pB
-    new.rail_min = rmin
-    new.rail_max = rmax
-    new.pRail = 0.5 * (rmin + rmax)
+        # 1. Punto geométricamente válido
+        pA, pB = sample_feasible_point(p_min, p_max, offset)
 
-    return new
+        # 2. Intervalo del raíl
+        ok, rmin, rmax = rail_interval_for_point(pB)
+        if not ok:
+            continue
 
+        # Elegimos un pRail intermedio para probar IK
+        pRail_test = 0.5 * (rmin + rmax)
+
+        # 3. IK A
+        qA, okA = ik_A(pA, sol.RA, np.zeros(6))
+        if not okA:
+            continue
+
+        # 4. IK B
+        qB, okB = ik_B(pB, sol.RB, np.zeros(6), pRail_test)
+        if not okB:
+            continue
+
+        # 5. Manipulabilidad
+        mA = manipulability(build_robot_A(), qA)
+        mB = manipulability(build_robot_B(), qB)
+
+        if mA < MANIP_MIN or mB < MANIP_MIN:
+            continue
+
+        # 6. Aceptar punto
+        new = sol.copy()
+        new.pA = pA
+        new.pB = pB
+        new.rail_min = rmin
+        new.rail_max = rmax
+        new.pRail = pRail_test
+        new.qA = qA
+        new.qB = qB
+        return new
+
+    # Si no se encuentra nada, devolvemos copia sin cambios
+    return sol.copy()
+
+
+# ============================================================
+#  NIVEL 2: MUTACIÓN DE VELOCIDADES Y RAÍL
+# ============================================================
 
 def generate_timing_neighbor(sol, sigma_s=0.05, sigma_prail=0.05):
     """
