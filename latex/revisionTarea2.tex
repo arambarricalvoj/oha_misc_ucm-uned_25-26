@@ -486,10 +486,26 @@ caso, se ha optado por la curva de convergencia del método. \\
 
 Esta curva se presenta en la \autoref{fig:curvaMedia}, donde se observa que el algoritmo ha  
 convergido a las 80 iteraciones de las 300 que se realizan, ya que la penalización es prácticamente 
-nula.
+nula. Es importante justificar el uso de $J$ para graficar esta curva, ya que 
+aunque la función de mérito utilizada en el nivel 2 del Temple Simulado se reduce a la
+penalización de sincronización $J = P_{\text{sync}}(\Delta t), \qquad \Delta t = |t_A - t_B|,$
+esta magnitud actúa como un mecanismo indirecto de minimización del tiempo dentro del punto
+espacial seleccionado en el nivel 1, que sería la función objetivo. \\
+
+Para que la penalización sea mínima, el algoritmo debe
+ajustar los factores de velocidad y la posición del raíl de modo que ambos robots alcancen el
+punto de cooperación en el mismo instante. Esta coincidencia temporal solo puede lograrse si
+los tiempos individuales se igualan en el menor valor posible compatible con la geometría del
+punto. En consecuencia, aunque el nivel 2 no modifica la posición espacial (que determina el
+tiempo mínimo alcanzable), sí minimiza el tiempo de ejecución dentro de ese punto al
+forzar la sincronización. \\
+
+Por este motivo, las curvas de convergencia representan la evolución
+de la función de mérito $J$, que es la magnitud que realmente guía el proceso de optimización.
+
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.13]{Images/tema2/scatter_plot_propuesto.png}
+  \includegraphics[scale=0.17]{Images/tema2/scatter_plot_propuesto.png}
   \caption{Diagrama de dispersión propuesto para la evaluación de la eficiencia de las soluciones. 
   Cada círculo representa una solución cuyo número adjunto corresponde con el número de ejecución, 
   el color de las soluciones se refiere a la eficiencia de las mismas, los círculos con borde negro
@@ -500,7 +516,7 @@ nula.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.16]{Images/tema2/convergencia_media.png}
+  \includegraphics[scale=0.17]{Images/tema2/convergencia_media.png}
   \caption{Curva media de convergecia del método desarrollado, donde se aprecia la disminución
   de la penalización J.}
   \label{fig:curvaMedia}

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.10.21)  1 MAY 2026 23:26
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.10.21)  2 MAY 2026 13:41
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1430,36 +1430,47 @@ Underfull \hbox (badness 10000) in paragraph at lines 480--486
 
  []
 
+
+Underfull \hbox (badness 10000) in paragraph at lines 487--494
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 495--502
+
+ []
+
 File: Images/tema2/scatter_plot_propuesto.png Graphic file (type bmp)
 <Images/tema2/scatter_plot_propuesto.png>
+[24]
 File: Images/tema2/convergencia_media.png Graphic file (type bmp)
 <Images/tema2/convergencia_media.png>
-[24]
-Underfull \hbox (badness 10000) in paragraph at lines 517--521
+
+Underfull \hbox (badness 10000) in paragraph at lines 533--537
+
+ []
+
+[25]
+Underfull \hbox (badness 10000) in paragraph at lines 538--542
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 522--526
+Underfull \hbox (badness 10000) in paragraph at lines 543--547
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 527--531
+Underfull \hbox (badness 10000) in paragraph at lines 548--550
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 532--534
+Underfull \hbox (badness 10000) in paragraph at lines 551--554
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 535--538
-
- []
-
-Excluding 'comment' comment.) [25]
+Excluding 'comment' comment.) [26]
 File: Images/ucm_uned.png Graphic file (type bmp)
 <Images/ucm_uned.png>
 
@@ -1467,7 +1478,7 @@ Underfull \hbox (badness 1210) in paragraph at lines 52--52
 []\TU/4.ttf(0)/m/n/12 Antonio Barrientos et al. \TU/4.ttf(0)/m/it/12 Fundamentos de robótica\TU/4.ttf(0)/m/n/12 . spa. 2.[] ed. Madrid: McGraw-Hill
  []
 
-[26
+[27
 
 
 ] (./main.aux
@@ -1498,4 +1509,4 @@ Here is how much of TeX's memory you used:
  40 hyphenation exceptions out of 8191
  94i,12n,107p,736b,4957s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.pdf (26 pages).
+Output written on main.pdf (27 pages).
