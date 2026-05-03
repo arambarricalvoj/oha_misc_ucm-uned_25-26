@@ -16,10 +16,10 @@ class Solution:
         self.sB = 0.5
         self.sRail = 0.5
 
+        # Orientaciones
         self.RA = np.array([np.pi, np.pi/2, 0]) # array([ 0.70710678,  0.70710678,  0. ,  0. ])
         self.RB = np.array([0, -np.pi/2, 0]) # array([ 0., -0.38268343,  0. ,  0.92387953])
 
-        # Orientaciones (para más adelante)
         self.qA = None
         self.qB = None
 

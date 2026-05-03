@@ -21,7 +21,7 @@ Este repositorio contiene el desarrollo completo del método de optimización ba
 
 ## Entorno de ejecución
 
-Todo el proyecto ha sido ejecutado en un entorno **conda**, lo que garantiza la reproducibilidad y el aislamiento de dependencias. En cualquier caso, para instalar las dependencias necesarias:
+Todo el proyecto ha sido ejecutado en un entorno *conda*, lo que garantiza la reproducibilidad y el aislamiento de dependencias. En cualquier caso, para instalar las dependencias necesarias:
 ```bash
 pip install -r requirements.txt
 ```
@@ -31,4 +31,9 @@ La carpeta ``test/`` incluye algunos ficheros auxiliares utilizados para comprob
 
 La carpeta ``resultados_memoria`` contiene las gráficas y resultados expuestos en la memoria.
 
-Para ejecutar el algoritmo, ejecutar en la terminal ``python3 main.py``. En el propio directorio se generarán las gráficas y ficheros de resultados.
+## Ejecución
+Para ejecutar el algoritmo, ejecutar en la terminal 
+```bash
+python3 main.py
+```
+En el propio directorio se generarán las gráficas y ficheros de resultados.

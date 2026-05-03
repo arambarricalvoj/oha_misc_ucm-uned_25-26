@@ -1,7 +1,7 @@
 import numpy as np
 from robots import ik_A, ik_B, manipulability
 
-# Velocidades nominales (ajusta a tu caso real)
+# Velocidades nominales
 V_RAIL = 1.0
 V_ARM_A = 1.0
 V_ARM_B = 1.0
@@ -9,7 +9,7 @@ V_ARM_B = 1.0
 # El raíl de B parte en su posición máxima
 PRAIL_START = 0.7
 
-# Parámetros de penalización (ejemplo)
+# Parámetros de penalización
 D_EF = 0.20      # distancia objetivo en X
 EPS_EJE = 0.01
 EPS_Y = 0.01
@@ -41,26 +41,6 @@ def compute_times(sol):
 
     return tA, tB
 
-
-"""
-def compute_times(sol):
-    # Robot A
-    qA = sol.qA
-    lA = np.linalg.norm(qA - np.zeros_like(qA))
-    tA = lA / (sol.sA * V_ARM_A + 1e-9)
-
-    # Robot B
-    qB = sol.qB
-    lB = np.linalg.norm(qB - np.zeros_like(qB))
-
-    dist_rail_B = abs(sol.pRail - PRAIL_START)
-    tRail = dist_rail_B / (sol.sRail * V_RAIL + 1e-9)
-
-    tB = tRail + lB / (sol.sB * V_ARM_B + 1e-9)
-
-    return tA, tB
-"""
-
 def penalty_separation(sol):
     eje = np.array([1.0, 0.0, 0.0])
     projA = eje @ sol.pA
@@ -75,14 +55,8 @@ def penalty_alignment(sol):
     err_z = abs(diff[2]) - EPS_Z
     py = max(0.0, err_y)**2
     pz = max(0.0, err_z)**2
-    # Término de orientación pendiente (cuando metas qA, qB)
     return py + pz
 
-
-"""def penalty_sync(tA, tB):
-    err = abs(tA - tB) - DELTA_T_MAX
-    return max(0.0, err)**2
-"""
 
 def penalty_sync(tA, tB, delta_max=0.5):
     dt = abs(tA - tB)
@@ -110,32 +84,11 @@ def penalty_singularity(sol, m_min=0.05):
     mB = max(mB, eps)
 
     return (m_min / mA)**2 + (m_min / mB)**2
-    
-
-"""def penalty_singularity(sol):
-    # Placeholder: cuando metas IK + Jacobiano, lo activas aquí
-    return 0.0
-"""
-
-"""
-def penalty_singularity(sol):
-    qA, successA = ik_A(sol.pA, sol.qA)
-    qB, successB = ik_B(sol.pB, sol.qB, sol.pRail)
-
-    if not successA or not successB:
-        return 1e6  # penalización enorme
-
-    mA = manipulability(robotA, qA)
-    mB = manipulability(robotB, qB)
-
-    return max(0, m_min - mA)**2 + max(0, m_min - mB)**2
-"""
 
 
 def merit_function(sol):
     """
     J_total = P_sep + P_alineación + P_sync + P_sing
-    (sin T_max, según tu definición revisada)
     """
     tA, tB = compute_times(sol)
 
@@ -151,7 +104,7 @@ def merit_function(sol):
 def evaluate_global_cost(sol):
     """
     Devuelve T_max y J_total para comparar soluciones.
-    SA de nivel 2 usará J_total; tú puedes usar T_max para ranking final.
+    SA de nivel 2 usará J_total
     """
     J, tA, tB = merit_function(sol)
     T_max = max(tA, tB)

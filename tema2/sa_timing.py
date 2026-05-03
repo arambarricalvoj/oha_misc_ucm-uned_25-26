@@ -14,7 +14,7 @@ def sa_timing_level(sol_init, max_iters=300,
 
     T = T0
 
-    # === NUEVO: historial para curvas de convergencia ===
+    # historial para curvas de convergencia
     history_J = [J_current]
 
     for k in range(max_iters):
@@ -43,8 +43,7 @@ def sa_timing_level(sol_init, max_iters=300,
 
         T *= alpha
 
-        # === NUEVO ===
         history_J.append(J_current)
 
-    # === NUEVO: devolver todo lo necesario ===
+    # devolver todo lo necesario
     return best, J_best, best_iter, history_J

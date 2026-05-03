@@ -152,11 +152,11 @@ def main():
     for i in range(N_RUNS):
         plt.text(time_list[i] + 0.002, Tmax_list[i] + 0.002, str(i+1), fontsize=8)
 
-    # Mejor solución → borde negro + verde
+    # Mejor solución --> borde negro + verde
     plt.scatter(time_list[idx_best], Tmax_list[idx_best],
                 edgecolors='black', facecolors='green', s=200, label="Mejor solución")
 
-    # Peor solución → borde negro + rojo
+    # Peor solución --> borde negro + rojo
     plt.scatter(time_list[idx_worst], Tmax_list[idx_worst],
                 edgecolors='black', facecolors='red', s=200, label="Peor solución")
 
