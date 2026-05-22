@@ -22,4 +22,5 @@
 \contentsline {subsection}{Diseño experimental}{21}{section*.43}%
 \contentsline {subsection}{Resultados}{22}{section*.44}%
 \contentsline {subsection}{Conclusiones}{26}{section*.51}%
-\contentsline {section}{Referencias adicionales al Campus Virtual}{27}{section*.53}%
+\contentsline {section}{Propuesta técnica de búsqueda evolutiva}{27}{section*.53}%
+\contentsline {section}{Referencias adicionales al Campus Virtual}{29}{section*.63}%
