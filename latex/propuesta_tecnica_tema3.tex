@@ -36,7 +36,7 @@ Cada solución candidata se representa como el vector continuo de la \autoref{ve
 \subsubsection*{Planteamiento del problema}
 Se continúa con el planteamiento mono-objetivo penalizado que se ha desarrollado en la 
 revisión del Tema 2, adoptando una
-arquitectura de dos niveles para reducir la dimensionalidad efectiva y filtrar soluciones
+arquitectura de dos niveles para reducir la dimensionalidad y filtrar soluciones
 cinemáticamente inválidas antes de la optimización. Al igual que con la búsqueda local,
 el algoritmo evolutivo se aplica al Nivel 2, donde el vector de decisión se centra en las 
 variables continuas que regulan la ejecución temporal y la posición final del raíl: 
@@ -55,7 +55,7 @@ posición del raíl a ese mismo intervalo para facilitar los mecanismos del algo
 diferencia escalada de dos individuos aleatorios sumada a un tercero: $v_i = x_{r1} + F \cdot (x_{r2} - x_{r3})$.
     \item \textbf{Cruce:} cruce binomial (uniforme) que combina el vector 
 actual con el mutante basado en una probabilidad $CR$.
-    \item \textbf{Selección/Recombinación:} selección elitista 1 a 1, donde el hijo 
+    \item \textbf{Selección:} selección elitista 1 a 1, donde el hijo 
 sustituye al padre solo si mejora su valor de aptitud o factibilidad.
     \item \textbf{Reparación:} tras el cruce, se aplica una función de reparación 
 para proyectar la posición del raíl obtenida a sus límites físicos permitidos.
