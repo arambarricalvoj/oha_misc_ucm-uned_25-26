@@ -5,7 +5,7 @@ import csv
 
 from solution import Solution
 import vecinos
-from de_timing import de_timing_level, DEParamsTiming
+from de_timing import de_timing_level
 from evaluate import evaluate_global_cost
 
 
@@ -33,15 +33,7 @@ def main():
     pA_list = []
     pB_list = []
 
-    print("\n=== EJECUCIÓN DE 30 CORRIDAS COMPLETAS (DE) ===")
-
-    params = DEParamsTiming(
-        pop_size=40,
-        generations=150,
-        F=0.75,
-        CR=0.90,
-        seed=None
-    )
+    print("\n=== EJECUCIÓN DE 30 CORRIDAS COMPLETAS ===")
 
     for run in range(N_RUNS):
 
@@ -52,8 +44,7 @@ def main():
         sol = Solution()
         sol = vecinos.generate_position_neighbor(sol, p_min, p_max, offset)
 
-        # === CAMBIO PRINCIPAL: SA → DE ===
-        sol2, J_best, best_iter, history_J = de_timing_level(sol, params=params)
+        sol2, J_best, best_iter, history_J = de_timing_level(sol)
 
         Tmax, J_total = evaluate_global_cost(sol2)
 
@@ -145,27 +136,33 @@ def main():
 
     plt.figure(figsize=(8,6))
 
+    # Línea de tendencia
     z = np.polyfit(time_list, Tmax_list, 1)
     p = np.poly1d(z)
     plt.plot(time_list, p(time_list), "k--", linewidth=1.5, label="Tendencia")
 
+    # Mejor y peor solución
     idx_best = np.argmin(Tmax_list)
     idx_worst = np.argmax(Tmax_list)
 
+    # Puntos normales
     scatter = plt.scatter(time_list, Tmax_list, c=eff_list, cmap='viridis', s=80)
 
+    # Etiquetas de ejecución
     for i in range(N_RUNS):
         plt.text(time_list[i] + 0.002, Tmax_list[i] + 0.002, str(i+1), fontsize=8)
 
+    # Mejor solución --> borde negro + verde
     plt.scatter(time_list[idx_best], Tmax_list[idx_best],
                 edgecolors='black', facecolors='green', s=200, label="Mejor solución")
 
+    # Peor solución --> borde negro + rojo
     plt.scatter(time_list[idx_worst], Tmax_list[idx_worst],
                 edgecolors='black', facecolors='red', s=200, label="Peor solución")
 
     plt.xlabel("Tiempo real (s)")
     plt.ylabel("Tmax")
-    plt.title("Eficiencia de Evolución Diferencial")
+    plt.title("Diagrama de dispersión propuesto para la eficiencia")
     plt.colorbar(scatter, label="Eficiencia")
     plt.legend()
     plt.tight_layout()
@@ -179,7 +176,7 @@ def main():
     plt.figure(figsize=(6,4))
     plt.boxplot(Tmax_list)
     plt.ylabel("Tmax")
-    plt.title("Distribución de Tmax (DE, 30 ejecuciones)")
+    plt.title("Distribución de Tmax (30 ejecuciones)")
     plt.savefig("boxplot_Tmax.png", dpi=300)
     plt.close()
 
@@ -192,9 +189,10 @@ def main():
     for h in history_list:
         plt.plot(h, alpha=0.35, linewidth=1.2, color='steelblue')
 
-    plt.xlabel("Generación")
+    plt.xlabel("Iteración")
     plt.ylabel("J")
-    plt.title("Curvas de convergencia de Evolución Diferencial")
+    plt.title("Curvas de convergencia del Temple Simulado")
+    plt.xlim(0, 150)
     plt.tight_layout()
     plt.savefig("convergencia_individuales.png", dpi=300)
     plt.close()
@@ -222,9 +220,10 @@ def main():
 
     plt.plot(mean_curve, color='black', linewidth=2.5, label='Media')
 
-    plt.xlabel("Generación")
+    plt.xlabel("Iteración")
     plt.ylabel("J")
-    plt.title("Curva media de convergencia de Evolución Diferencial")
+    plt.title("Curva media de convergencia del Temple Simulado")
+    plt.xlim(0, 150)
     plt.legend()
     plt.tight_layout()
     plt.savefig("convergencia_media.png", dpi=300)
@@ -236,6 +235,7 @@ def main():
 
     import pandas as pd
 
+    # Crear DataFrame con pA y pB
     df = pd.DataFrame({
         "pA_x": [p[0] for p in pA_list],
         "pB_x": [p[0] for p in pB_list]
@@ -243,7 +243,7 @@ def main():
 
     plt.figure(figsize=(6,4))
     plt.boxplot([df["pA_x"], df["pB_x"]], labels=["pA_x", "pB_x"])
-    plt.title("Distribución de coordenadas X de pA y pB (DE)")
+    plt.title("Distribución de coordenadas X de pA y pB")
     plt.ylabel("Valor en X")
     plt.tight_layout()
     plt.savefig("boxplot_pA_x_pB_x.png", dpi=300)
@@ -268,6 +268,7 @@ def main():
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
 
+    # Cilindro de A
     theta = np.linspace(0, 2*np.pi, 50)
     z = np.linspace(0, Z_MAX, 20)
     theta_grid, z_grid = np.meshgrid(theta, z)
@@ -276,17 +277,21 @@ def main():
     yA = H_MAX * np.sin(theta_grid)
     ax.plot_surface(xA, yA, z_grid, alpha=0.15, color='blue')
 
+    # Cilindro de B (posición central del raíl)
     cxB = 0.75
     xB = cxB + H_MAX * np.cos(theta_grid)
     yB = H_MAX * np.sin(theta_grid)
     ax.plot_surface(xB, yB, z_grid, alpha=0.15, color='red')
 
+    # Puntos pA y pB
     ax.scatter(pA[:,0], pA[:,1], pA[:,2], color='blue', s=40, label='pA')
     ax.scatter(pB[:,0], pB[:,1], pB[:,2], color='red', s=40, label='pB')
 
+    # Líneas offset
     for a, b in zip(pA, pB):
         ax.plot([a[0], b[0]], [a[1], b[1]], [a[2], b[2]], 'k--', alpha=0.4)
 
+    # Línea del raíl
     rail_x = np.linspace(0.75 + RAIL_MIN, 0.75 + RAIL_MAX, 50)
     rail_y = np.zeros_like(rail_x)
     rail_z = np.zeros_like(rail_x)
@@ -295,7 +300,7 @@ def main():
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
-    ax.set_title("Visualización 3D de pA y pB (DE)")
+    ax.set_title("Visualización 3D de pA y pB obtenidos por el algoritmo")
     ax.legend()
 
     plt.tight_layout()
@@ -303,6 +308,7 @@ def main():
     plt.close()
 
     print("Visualización 3D generada: visualizacion_pA_pB.png")
+
 
 
 if __name__ == "__main__":
