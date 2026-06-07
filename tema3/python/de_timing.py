@@ -36,6 +36,10 @@ def de_timing_level(
         x = (sA, sB, sRail, pRail)
 
     Mantiene sol_init.pA, sol_init.pB, sol_init.rail_min, sol_init.rail_max.
+    Devuelve también:
+      - history_J: mejor J por generación
+      - history_Tmax: mejor Tmax por generación
+      - best_iter: generación donde aparece el mejor J global
     """
 
     # ------------------------------------------------------------
@@ -44,16 +48,13 @@ def de_timing_level(
     rail_min = sol_init.rail_min
     rail_max = sol_init.rail_max
 
-    # Vector inicial
-    x0 = np.array([sol_init.sA, sol_init.sB, sol_init.sRail, sol_init.pRail])
-
-    # Inicialización uniforme en (0,1] excepto pRail que se escala
+    # Población inicial
     pop = np.zeros((pop_size, 4))
     for i in range(pop_size):
-        pop[i, 0] = np.random.uniform(0.0, 1.0)
-        pop[i, 1] = np.random.uniform(0.0, 1.0)
-        pop[i, 2] = np.random.uniform(0.0, 1.0)
-        pop[i, 3] = np.random.uniform(rail_min, rail_max)
+        pop[i, 0] = np.random.uniform(0.0, 1.0)          # sA
+        pop[i, 1] = np.random.uniform(0.0, 1.0)          # sB
+        pop[i, 2] = np.random.uniform(0.0, 1.0)          # sRail
+        pop[i, 3] = np.random.uniform(rail_min, rail_max)  # pRail
 
     # Evaluación inicial
     fitness = np.zeros(pop_size)
@@ -64,12 +65,27 @@ def de_timing_level(
         fitness[i] = J
 
     # Historial
-    history_J = [np.min(fitness)]
+    history_J = []
+    history_Tmax = []
+
+    # Mejor global
+    best_global_J = np.min(fitness)
+    best_iter = 0
+
+    # Guardar generación 0
+    best_idx_0 = np.argmin(fitness)
+    sol_best_0 = sol_init.copy()
+    sol_best_0.sA, sol_best_0.sB, sol_best_0.sRail, sol_best_0.pRail = pop[best_idx_0]
+    J0, tA0, tB0 = merit_function(sol_best_0)
+    Tmax0 = max(tA0, tB0)
+
+    history_J.append(J0)
+    history_Tmax.append(Tmax0)
 
     # ------------------------------------------------------------
     # 2. Bucle evolutivo
     # ------------------------------------------------------------
-    for gen in range(generations):
+    for gen in range(1, generations + 1):
 
         new_pop = pop.copy()
         new_fit = fitness.copy()
@@ -107,11 +123,25 @@ def de_timing_level(
         pop = new_pop
         fitness = new_fit
 
-        history_J.append(np.min(fitness))
+        # Mejor de esta generación
+        gen_best_idx = np.argmin(fitness)
+        sol_gen_best = sol_init.copy()
+        sol_gen_best.sA, sol_gen_best.sB, sol_gen_best.sRail, sol_gen_best.pRail = pop[gen_best_idx]
+        J_gen, tA_gen, tB_gen = merit_function(sol_gen_best)
+        Tmax_gen = max(tA_gen, tB_gen)
+
+        history_J.append(J_gen)
+        history_Tmax.append(Tmax_gen)
+
+        # Actualizar mejor global
+        if J_gen < best_global_J:
+            best_global_J = J_gen
+            best_iter = gen
 
     # ------------------------------------------------------------
-    # 3. Mejor individuo final
+    # 3. Mejor individuo final (mejor global)
     # ------------------------------------------------------------
+    # best_global_J ya lo tenemos; buscamos el individuo con ese J
     best_idx = np.argmin(fitness)
     best_x = pop[best_idx]
 
@@ -120,4 +150,4 @@ def de_timing_level(
 
     J_best, tA_best, tB_best = merit_function(best_sol)
 
-    return best_sol, J_best, best_idx, history_J
+    return best_sol, J_best, best_iter, history_J, history_Tmax

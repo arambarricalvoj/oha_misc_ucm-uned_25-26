@@ -2,7 +2,6 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 import csv
-import pandas as pd
 
 from solution import Solution
 import vecinos
@@ -22,8 +21,7 @@ def main():
     time_list = []
     iter_list = []
     eff_list = []
-    history_J_list = []
-    history_Tmax_list = []
+    history_list = []
 
     # === LISTAS PARA VECTOR DE SOLUCIÓN ===
     sA_list = []
@@ -43,14 +41,11 @@ def main():
 
         print(f"\n--- Ejecución {run+1}/{N_RUNS} ---")
 
-        # Nivel 1: generar punto factible
         sol = Solution()
         sol = vecinos.generate_position_neighbor(sol, p_min, p_max, offset)
 
-        # Nivel 2: DE sobre velocidades y raíl
-        sol2, J_best, best_iter, history_J, history_Tmax = de_timing_level(sol)
+        sol2, J_best, best_iter, history_J = de_timing_level(sol)
 
-        # Evaluación final
         Tmax, J_total = evaluate_global_cost(sol2)
 
         t1 = time.time()
@@ -63,8 +58,7 @@ def main():
         time_list.append(elapsed)
         iter_list.append(best_iter)
         eff_list.append(Tmax / elapsed)
-        history_J_list.append(history_J)
-        history_Tmax_list.append(history_Tmax)
+        history_list.append(history_J)
 
         # === GUARDAR VECTOR DE SOLUCIÓN ===
         sA_list.append(sol2.sA)
@@ -137,26 +131,32 @@ def main():
     print("CSV generado: resultados_agregados.csv")
 
     # ============================================================
-    # FIGURA 1: SCATTER PLOT PROPUESTO
+    # FIGURA 1: DIAGRAMA DE DISPERSIÓN PROPUESTO
     # ============================================================
 
     plt.figure(figsize=(8,6))
 
+    # Línea de tendencia
     z = np.polyfit(time_list, Tmax_list, 1)
     p = np.poly1d(z)
     plt.plot(time_list, p(time_list), "k--", linewidth=1.5, label="Tendencia")
 
+    # Mejor y peor solución
     idx_best = np.argmin(Tmax_list)
     idx_worst = np.argmax(Tmax_list)
 
+    # Puntos normales
     scatter = plt.scatter(time_list, Tmax_list, c=eff_list, cmap='viridis', s=80)
 
+    # Etiquetas de ejecución
     for i in range(N_RUNS):
         plt.text(time_list[i] + 0.002, Tmax_list[i] + 0.002, str(i+1), fontsize=8)
 
+    # Mejor solución --> borde negro + verde
     plt.scatter(time_list[idx_best], Tmax_list[idx_best],
                 edgecolors='black', facecolors='green', s=200, label="Mejor solución")
 
+    # Peor solución --> borde negro + rojo
     plt.scatter(time_list[idx_worst], Tmax_list[idx_worst],
                 edgecolors='black', facecolors='red', s=200, label="Peor solución")
 
@@ -170,7 +170,7 @@ def main():
     plt.close()
 
     # ============================================================
-    # FIGURA 2: BOXPLOT DE Tmax
+    # FIGURA 2: BOXPLOT
     # ============================================================
 
     plt.figure(figsize=(6,4))
@@ -181,37 +181,36 @@ def main():
     plt.close()
 
     # ============================================================
-    # FIGURA 3A: CURVAS DE J INDIVIDUALES
+    # FIGURA 3A: CURVAS DE CONVERGENCIA INDIVIDUALES
     # ============================================================
 
     plt.figure(figsize=(8,5))
 
-    for h in history_J_list:
+    for h in history_list:
         plt.plot(h, alpha=0.35, linewidth=1.2, color='steelblue')
 
-    max_len_J = max(len(h) for h in history_J_list)
-    plt.xlim(0, 20)
-    plt.xticks(np.arange(0, 21, 1)) # ticks enteros
-
-    plt.xlabel("Generación")
+    plt.xlabel("Iteración")
     plt.ylabel("J")
-    plt.title("Curvas de convergencia de J (DE)")
+    plt.title("Curvas de convergencia del Temple Simulado")
+    plt.xlim(0, 150)
     plt.tight_layout()
-    plt.savefig("convergencia_J_individuales.png", dpi=300)
+    plt.savefig("convergencia_individuales.png", dpi=300)
     plt.close()
 
     # ============================================================
-    # FIGURA 3B: CURVA MEDIA DE J
+    # FIGURA 3B: CURVA MEDIA DE CONVERGENCIA
     # ============================================================
 
     plt.figure(figsize=(8,5))
 
-    histories = np.array([np.pad(h, (0, max_len_J - len(h)), 'edge') for h in history_J_list])
+    max_len = max(len(h) for h in history_list)
+    histories = np.array([np.pad(h, (0, max_len - len(h)), 'edge') for h in history_list])
+
     mean_curve = histories.mean(axis=0)
     std_curve = histories.std(axis=0)
 
     plt.fill_between(
-        np.arange(max_len_J),
+        np.arange(max_len),
         mean_curve - std_curve,
         mean_curve + std_curve,
         color='gray',
@@ -221,69 +220,22 @@ def main():
 
     plt.plot(mean_curve, color='black', linewidth=2.5, label='Media')
 
-    plt.xlabel("Generación")
+    plt.xlabel("Iteración")
     plt.ylabel("J")
-    plt.title("Curva media de convergencia de J (DE)")
-    plt.xlim(0, 20)
-    plt.xticks(np.arange(0, 21, 1)) # ticks enteros
+    plt.title("Curva media de convergencia del Temple Simulado")
+    plt.xlim(0, 150)
     plt.legend()
     plt.tight_layout()
-    plt.savefig("convergencia_J_media.png", dpi=300)
-    plt.close()
-
-    # ============================================================
-    # FIGURA 3C: CURVAS DE Tmax INDIVIDUALES
-    # ============================================================
-
-    plt.figure(figsize=(8,5))
-
-    for h in history_Tmax_list:
-        plt.plot(h, alpha=0.35, linewidth=1.2, color='darkred')
-
-    max_len_T = max(len(h) for h in history_Tmax_list)
-    plt.xlim(0, max_len_T)
-
-    plt.xlabel("Generación")
-    plt.ylabel("Tmax (s)")
-    plt.title("Curvas de convergencia de Tmax (DE)")
-    plt.tight_layout()
-    plt.savefig("convergencia_Tmax_individuales.png", dpi=300)
-    plt.close()
-
-    # ============================================================
-    # FIGURA 3D: CURVA MEDIA DE Tmax
-    # ============================================================
-
-    plt.figure(figsize=(8,5))
-
-    histories_T = np.array([np.pad(h, (0, max_len_T - len(h)), 'edge') for h in history_Tmax_list])
-    mean_T_curve = histories_T.mean(axis=0)
-    std_T_curve = histories_T.std(axis=0)
-
-    plt.fill_between(
-        np.arange(max_len_T),
-        mean_T_curve - std_T_curve,
-        mean_T_curve + std_T_curve,
-        color='salmon',
-        alpha=0.25,
-        label='±1 desviación típica'
-    )
-
-    plt.plot(mean_T_curve, color='darkred', linewidth=2.5, label='Media')
-
-    plt.xlabel("Generación")
-    plt.ylabel("Tmax (s)")
-    plt.title("Curva media de convergencia de Tmax (DE)")
-    plt.xlim(0, max_len_T)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("convergencia_Tmax_media.png", dpi=300)
+    plt.savefig("convergencia_media.png", dpi=300)
     plt.close()
 
     # ============================================================
     # FIGURA 4: BOXPLOT pA_x vs pB_x
     # ============================================================
 
+    import pandas as pd
+
+    # Crear DataFrame con pA y pB
     df = pd.DataFrame({
         "pA_x": [p[0] for p in pA_list],
         "pB_x": [p[0] for p in pB_list]
@@ -316,6 +268,7 @@ def main():
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
 
+    # Cilindro de A
     theta = np.linspace(0, 2*np.pi, 50)
     z = np.linspace(0, Z_MAX, 20)
     theta_grid, z_grid = np.meshgrid(theta, z)
@@ -324,17 +277,21 @@ def main():
     yA = H_MAX * np.sin(theta_grid)
     ax.plot_surface(xA, yA, z_grid, alpha=0.15, color='blue')
 
+    # Cilindro de B (posición central del raíl)
     cxB = 0.75
     xB = cxB + H_MAX * np.cos(theta_grid)
     yB = H_MAX * np.sin(theta_grid)
     ax.plot_surface(xB, yB, z_grid, alpha=0.15, color='red')
 
+    # Puntos pA y pB
     ax.scatter(pA[:,0], pA[:,1], pA[:,2], color='blue', s=40, label='pA')
     ax.scatter(pB[:,0], pB[:,1], pB[:,2], color='red', s=40, label='pB')
 
+    # Líneas offset
     for a, b in zip(pA, pB):
         ax.plot([a[0], b[0]], [a[1], b[1]], [a[2], b[2]], 'k--', alpha=0.4)
 
+    # Línea del raíl
     rail_x = np.linspace(0.75 + RAIL_MIN, 0.75 + RAIL_MAX, 50)
     rail_y = np.zeros_like(rail_x)
     rail_z = np.zeros_like(rail_x)
@@ -351,6 +308,7 @@ def main():
     plt.close()
 
     print("Visualización 3D generada: visualizacion_pA_pB.png")
+
 
 
 if __name__ == "__main__":

@@ -37,3 +37,20 @@ Para ejecutar el algoritmo, ejecutar en la terminal
 python3 main.py
 ```
 En el propio directorio se generarán las gráficas y ficheros de resultados.
+
+
+
+conda create -n xarm_env python=3.12
+conda activate xarm_env
+
+# Librerías numéricas
+pip install numpy scipy matplotlib pandas
+
+# Robotics Toolbox de Corke (solo para forward kinematics y jacobianos)
+pip install roboticstoolbox-python spatialmath-python
+
+# ssik (IK analítica)
+pip install ssik
+
+# Otros
+pip install tqdm
