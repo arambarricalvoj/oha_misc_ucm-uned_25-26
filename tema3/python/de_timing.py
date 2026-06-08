@@ -27,8 +27,8 @@ def de_timing_level(
     sol_init,
     pop_size=60,
     generations=150,
-    F=0.75,
-    CR=0.90,
+    F=0.9,
+    CR=0.9,
     store_history=True
 ):
     """

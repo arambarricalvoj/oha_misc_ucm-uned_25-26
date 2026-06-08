@@ -86,29 +86,25 @@ para los robots. En la \autoref{fig:visP_tema3} se visualizan en tres dimensione
   \caption{Visualización de los puntos espaciales factibles optimizados en el tema 3.}
   \label{fig:visP_tema3}
 \end{figure}
-En la \autoref{fig:curvaMedia} se presenta la curva de convergencia del método, 
-donde se observa que el algoritmo ha convergido a las 3 generaciones de las 150 que se realizan.
-Este resultado llamativo, aparentemente conduce a pensar en la convergencia prematura del método.
-Sin embargo, 
-
 En la \autoref{fig:curvaMedia} se presenta la curva de convergencia del método, donde se observa
 que el algoritmo ha convergido a las 3 generaciones de las 150 que se realizan. Este resultado,
 aunque llamativo, no implica necesariamente una convergencia prematura. En realidad, es coherente
 con la naturaleza del problema: en esta fase, el espacio efectivo del vector de decisión se 
 reduce a un hipercubo de únicamente cuatro dimensiones (posición del raíl y tres factores de 
-velocidad). En un dominio tan compacto, la evolución diferencial es capaz de desplazarse con 
+velocidad) y la evaluación propuesta resulta trivial para el algoritmo. 
+En un dominio tan compacto, la evolución diferencial es capaz de desplazarse con 
 gran rapidez hacia regiones prometedoras, estabilizando el valor de la función objetivo en 
 muy pocas generaciones. \\
 
-Además, los resultados obtenidos en la tabla muestran valores consistentes y estables entre 
-ejecuciones, lo que indica que el algoritmo no solo converge rápido, sino que realiza una 
+Además, los resultados obtenidos en la tabla anterior muestran valores consistentes y estables 
+entre ejecuciones, lo que indica que el algoritmo no solo converge rápido, sino que realiza una 
 búsqueda ágil y de calidad, identificando de forma fiable zonas factibles y de buen rendimiento.
 La ausencia de mejoras posteriores no se debe a estancamiento, sino a que el paisaje del 
-problema —dominado por restricciones geométricas y cinemáticas muy estructuradas— ofrece pocas
+problema, dominado por restricciones geométricas y cinemáticas muy estructuradas, ofrece pocas
 oportunidades adicionales de optimización una vez alcanzada la región óptima. \\
 
-Es importante justificar el uso de $J$ para graficar esta curva, ya que aunque la función de mérito utilizada en el nivel 2 del Temple 
-Simulado se reduce a la
+Es importante justificar el uso de $J$ para graficar esta curva, ya que aunque la función de
+mérito utilizada en el nivel 2 se reduce a la
 penalización de sincronización $J = P_{\text{sync}}(\Delta t), \qquad \Delta t = |t_A - t_B|,$
 esta magnitud actúa como un mecanismo indirecto de minimización del tiempo dentro del punto
 espacial seleccionado en el nivel 1, que sería la función objetivo. \\
@@ -122,47 +118,167 @@ tiempo mínimo alcanzable), sí minimiza el tiempo de ejecución dentro de ese p
 forzar la sincronización. \\
 
 Por este motivo, las curvas de convergencia representan la evolución
-de la función de mérito $J$, que es la magnitud que realmente guía el proceso de optimización.
+de la función de mérito $J$, que es la magnitud que realmente guía el proceso de optimización. \\
+
+Asimismo, dada la rapidez de convergencia del algoritmo, resulta interante evaluar también 
+la evolución del tiempo máximo obtenido a lo largo de las generaciones. En la 
+\autoref{fig:curvaMediaT} se observa que el valor óptimo se obtiene habitualmente 
+a partir de la generación 50. Estos resultados se tienen que valorar conjuntamente con 
+la curva de convergencia de la \autoref{fig:curvaMedia} para entender que a partir de la 
+tercera generación, el algoritmo comienza a explotar la región óptima.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.17]{Images/tema3/convergencia_J_media.png}
+  \includegraphics[scale=0.15]{Images/tema3/convergencia_J_media.png}
   \caption{Curva media de convergecia de la evolución diferencial, donde se aprecia la disminución
   de la penalización J.}
   \label{fig:curvaMedia}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.15]{Images/tema3/convergencia_Tmax_media}
+  \caption{Evolución del tiempo máximo de desplazamiento obtenido.}
+  \label{fig:curvaMediaT}
 \end{figure}
 
 
 %En conjunto, estas métricas cuantitativas permiten concluir que el algoritmo no solo es eficaz
 %en términos de calidad de las soluciones (medida mediante $T_{\max}$), sino también robusto y 
 %estable en su comportamiento estadístico.
+\clearpage
+Para evaluar la sensibilidad del algoritmo frente a variaciones en los parámetros, 
+se aplicó un test no paramétrico de \textit{Kruskal--Wallis} \cite{hollander2013nonparametric} sobre las distribuciones de 
+$T_{\text{máx}}$ obtenidas en las cuatro configuraciones analizadas. Este test contrasta la 
+hipótesis nula
+\[
+H_0: \text{todas las configuraciones generan la misma distribución de } T_{\text{máx}},
+\]
+
+frente a la hipótesis alternativa
+\[
+H_1: \text{al menos una configuración produce una distribución distinta}.
+\]
+
+El análisis se realizó mediante la función \texttt{kruskal()} de la librería \textit{scipy.stats}. 
+El resultado del test fue un estadístico $H = 0.27$ con un valor $p = 0.965$. Un valor de $H$ tan 
+reducido indica que las medianas de los grupos son prácticamente indistinguibles, mientras que un 
+p--valor tan elevado implica que las diferencias observadas entre configuraciones son totalmente 
+compatibles con el azar. Por tanto, no existe evidencia estadística para rechazar la hipótesis nula, 
+lo que confirma que los parámetros evaluados no influyen de manera apreciable en el rendimiento 
+del algoritmo. \\
+
+Como se ha explicado con la convergencia del método, este comportamiento también es coherente 
+con la naturaleza del problema ya que el espacio de 
+búsqueda efectivo se reduce a un hipercubo de únicamente cuatro dimensiones (posición del raíl y 
+tres factores de velocidad). En un dominio tan reducido, las distintas configuraciones del algoritmo 
+exploran regiones muy similares y convergen hacia soluciones prácticamente idénticas. Como 
+consecuencia, la evolución diferencial muestra un comportamiento consistente y robusto, manteniendo 
+valores similares de $T_{\text{máx}}$ independientemente de la configuración empleada, tal y como se 
+recoge en la \autoref{tab:kruskal_configs}. \\
+
+%Para evaluar la sensibilidad del algoritmo frente a variaciones en los parámetros, 
+%se aplicó un test no paramétrico de \textit{Kruskas-Wallis} sobre las distribuciones de $T_{\text{máx}}$
+%obtenidas en las cuatro configuraciones analizadas. Se ha utilizado la función \texttt{kruskal()}
+%de la librería \textit{scipy.stats}. El resultado del test fue $H=0.27$
+%con un valor $p = 0.965$, lo que indica que no existen diferencias estadísticamente significativas 
+%entre las configuraciones. Este resultado sugiere que el rendimiento del método es estable y robusto, ya que las variaciones en los parámetros no producen cambios apreciables en la calidad de las soluciones.
+%En consecuencia, la evolución diferencial muestra un comportamiento consistente, manteniendo 
+%valores similares de $T_{\text{máx}}$ independientemente de la configuración empleada, \autoref{tab:kruskal_configs}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{$F$} & \textbf{$CR$} & \textbf{$T_{\text{máx}}$ (s)} \\
+\hline
+$0.4$ & $0.5$ & $0.89$ \\
+\hline
+$0.6$ & $0.7$ & $0.91$ \\
+\hline
+$0.75$ & $0.9$ & $0.86$ \\
+\hline
+$0.9$ & $0.9$ & $0.89$ \\
+\hline
+\end{tabular}
+\caption{Resultados de $T_{\text{máx}}$ para distintas configuraciones de $F$ y $CR$.}
+\label{tab:kruskal_configs}
+\end{table}
 
 
 \subsection*{Conclusiones}
 \addcontentsline{toc}{subsection}{Conclusiones}
-Durante la evaluación de los resultados se ha observado que el algoritmo tiende a converger de forma
-prematura, lo que sugiere que no está explorando completamente el espacio de soluciones
-disponible. Sin embargo, las soluciones proporcionadas son muy lógicas, salvo por los perfiles 
-de velocidad cuando estos reciben el máximo valor posible (1). \\
+\begin{comment}
+    Se ha observado que el algoritmo de Evolución Diferencial tiende a converger rápidamente, 
+obteniendo además mejores resultados que el Temple Simulado implementado en el tema 2. 
+Dado que los resultados siguen siendo plenamente coherentes entre ejecuciones, se deduce que 
+la arquitectura de descomposición del problema en dos niveles ha simplificado enormemente la 
+búsqueda, reduciendo el espacio efectivo a un hipercubo de baja dimensión. Esta reducción 
+explica tanto la rapidez de convergencia como la estabilidad de las soluciones obtenidas. 
+No obstante, incluso dentro de este espacio reducido, la propia naturaleza del algoritmo de 
+Evolución Diferencial ha demostrado operar de forma más eficiente y con menos iteraciones que 
+la búsqueda local del Temple Simulado, identificando con mayor rapidez la región óptima. \\
 
-Resulta evidente que la mejor solución, es decir, aquella con menor tiempo de desplazamiento,
-se obtiene con la máxima velocidad de los robots. Esta situación está introduciendo un sesgo al 
-algoritmo para explorar únicamente perfiles elevados de velocidad, reduciendo el espacio de búsqueda, provocando una convergecia prematura y priorizando la minimización del tiempo a costa de ignorar
-criterios de calidad del movimiento que serían relevantes en un escenario real. \\
+Para explotar completamente el potencial del método, sería deseable que el propio algoritmo 
+de Evolución Diferencial se encargase también del nivel 1, es decir, de la optimización de los 
+puntos espaciales de \textit{rendezvous}. Sin embargo, esta extensión requiere disponer de una 
+cinemática inversa analítica para los robots utilizados. La cinemática inversa numérica de la 
+\textit{Robotics Toolbox} de Peter Corke resulta computacionalmente demasiado costosa para el 
+número de evaluaciones necesarias, especialmente considerando la penalización asociada a la 
+singularidad en la función de mérito. Se exploró el uso de la librería \texttt{ssik}, que sí ofrece 
+soluciones analíticas para los manipuladores empleados, pero esta requiere \textit{Python} $\geq 3.11$, 
+mientras que la \textit{Robotics Toolbox} sólo es compatible con versiones anteriores. Esta 
+incompatibilidad hace que la integración de ambas herramientas requiera un trabajo adicional de 
+preparación y adaptación que queda fuera del alcance de la asignatura. \\
 
-Así todo, no todos los perfiles de velocidad optimizados son elevados, puesto que 
-en la mejor solución obtenida la escala de velocidad del robot A es de $0.41$. 
-Consecuentemente, demuestra que a pesar de que el algoritmo tenga un sesgo, es capaz 
-de optimizar parcialmente el punto de encuentro de ambos robots. \\
+En consecuencia, se concluye también que la disponibilidad de modelos cinemáticos adecuados, 
+de herramientas compatibles y de datos correctamente formateados es un factor determinante para 
+aprovechar al máximo el potencial de los algoritmos de optimización. La correcta codificación de 
+los datos y la elección de las librerías apropiadas condicionan de manera directa la viabilidad 
+computacional del enfoque y de los algoritmos, y la calidad de las soluciones alcanzadas. 
+\end{comment}
+Se ha observado que el algoritmo de Evolución Diferencial tiende a converger rápidamente, 
+obteniendo además mejores resultados que el Temple Simulado implementado en el tema 2. 
+Dado que los resultados siguen siendo plenamente coherentes entre ejecuciones, se deduce que 
+la arquitectura de descomposición del problema en dos niveles ha simplificado enormemente la 
+búsqueda, reduciendo el espacio efectivo a un hipercubo de baja dimensión. Esta reducción 
+explica tanto la rapidez de convergencia como la estabilidad de las soluciones obtenidas. 
+No obstante, incluso dentro de este espacio reducido, la propia naturaleza del algoritmo de 
+Evolución Diferencial ha demostrado operar de forma más eficiente y con menos iteraciones que 
+la búsqueda local del Temple Simulado, identificando con mayor rapidez la región óptima. \\
 
-La eliminación de este sesgo se plantea como línea futura, mediante la introducción
-de alguna restricción sobre aceleración, suavidad o calidad de movimiento. \\
+Además, el análisis estadístico mediante el test no paramétrico de \textit{Kruskal-Wallis} confirma 
+la robustez del método frente a variaciones en los parámetros. El estadístico obtenido 
+($H = 0.27$) junto con un valor $p = 0.965$ indica que no existen diferencias estadísticamente 
+significativas entre las configuraciones evaluadas, lo que refuerza la conclusión de que el 
+algoritmo mantiene un comportamiento estable independientemente de los valores de $F$ y $CR$. 
+Este resultado es coherente con el reducido tamaño del espacio de búsqueda efectivo, que hace 
+que todas las configuraciones exploren regiones muy similares y converjan hacia soluciones 
+prácticamente idénticas. \\
 
-Además, el método implementado es computacionalmente eficiente puesto que 
-los tiempos de ejecución son muy bajos, pudiendo ser utilizado en apliaciones de planificación 
-de trayectorias de robots. \\
+Para explotar completamente el potencial del método, sería deseable que el propio algoritmo 
+de Evolución Diferencial se encargase también del nivel 1, es decir, de la optimización de los 
+puntos espaciales de \textit{rendezvous}. Sin embargo, esta extensión requiere disponer de una 
+cinemática inversa analítica para los robots utilizados. La cinemática inversa numérica de la 
+\textit{Robotics Toolbox} de Peter Corke resulta computacionalmente demasiado costosa para el 
+número de evaluaciones necesarias, especialmente considerando la penalización asociada a la 
+singularidad en la función de mérito. Se exploró el uso de la librería \texttt{ssik}, que sí ofrece 
+soluciones analíticas para los manipuladores empleados, pero esta requiere \textit{Python} $\geq 3.11$, 
+mientras que la \textit{Robotics Toolbox} sólo es compatible con versiones anteriores. Esta 
+incompatibilidad hace que la integración de ambas herramientas requiera un trabajo adicional de 
+preparación y adaptación que queda fuera del alcance de la asignatura. \\
 
-Por úlitmo, otro trabajo futuro que se plantea es la resolución del problema con la metodología
-mencionada previamente: establecer un mecanismo de evaluación que determine cómo de lejos se 
-encuentra un punto del espacio de trabajo factible para que el algoritmo de 
-Temple Simulado sea capaz de converger hacia puntos factibles.
+Aunque se dispone de un \textit{solver} operativo en \textit{ROS2} basado en \textit{MoveIt2} y 
+\textit{FastIK}, su utilización en esta aplicación concreta resulta poco práctica. La complejidad 
+intrínseca de la arquitectura de \textit{ROS2}, junto con la necesidad de gestionar nodos, 
+\textit{launch files}, dependencias y comunicación entre procesos, introduce una sobrecarga 
+significativa que no aporta ventajas reales en el contexto de un algoritmo que requiere miles de 
+evaluaciones rápidas y ligeras de cinemática inversa. Por tanto, aunque estas herramientas son 
+adecuadas para aplicaciones robóticas en tiempo real, su integración en el flujo de optimización 
+planteado excede los objetivos y el alcance de la presente asignatura. \\
+
+En consecuencia, se concluye que la disponibilidad de modelos cinemáticos adecuados y de 
+herramientas software compatibles es un factor determinante para aprovechar al máximo el 
+potencial de los algoritmos de optimización. La correcta codificación de los datos y la elección de 
+las librerías apropiadas condicionan de manera directa la viabilidad computacional del enfoque y 
+la calidad de las soluciones alcanzadas.

@@ -153,6 +153,44 @@
       \field{pages}{475\bibrangedash 492}
       \range{pages}{18}
     \endentry
+    \entry{hollander2013nonparametric}{book}{}
+      \name{author}{3}{}{%
+        {{hash=8b3c58f2c9072793e99f34029f63157d}{%
+           family={Hollander},
+           familyi={H\bibinitperiod},
+           given={Myles},
+           giveni={M\bibinitperiod}}}%
+        {{hash=19945508f6e4ed5557e96375dd8a770a}{%
+           family={Wolfe},
+           familyi={W\bibinitperiod},
+           given={Douglas\bibnamedelima A.},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=9cedadb2c82fd74d92d5cd77e1629751}{%
+           family={Chicken},
+           familyi={C\bibinitperiod},
+           given={Eric},
+           giveni={E\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {John Wiley \& Sons}%
+      }
+      \strng{namehash}{4456c07f75b64f8e8ee11a0d16733d9c}
+      \strng{fullhash}{4456c07f75b64f8e8ee11a0d16733d9c}
+      \strng{bibnamehash}{4456c07f75b64f8e8ee11a0d16733d9c}
+      \strng{authorbibnamehash}{4456c07f75b64f8e8ee11a0d16733d9c}
+      \strng{authornamehash}{4456c07f75b64f8e8ee11a0d16733d9c}
+      \strng{authorfullhash}{4456c07f75b64f8e8ee11a0d16733d9c}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{3}
+      \field{title}{Nonparametric Statistical Methods}
+      \field{year}{2013}
+      \verb{doi}
+      \verb 10.1002/9781119196037
+      \endverb
+    \endentry
   \enddatalist
 \endrefsection
 \endinput

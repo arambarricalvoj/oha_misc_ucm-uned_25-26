@@ -1,0 +1,98 @@
+\newpage
+\datos{color}{}{}
+\section*{Definición multi-objetivo del problema y resolución}
+\addcontentsline{toc}{section}{Definición multi-objetivo del problema y resolución}
+
+\subsection*{Fundamento técnico y justificación}
+Hasta este punto, el problema se ha abordado mediante una \textbf{función de mérito penalizada} que 
+combina objetivos heterogéneos (tiempo máximo $T_{max}$, desincronización $|t_A - t_B|$ y 
+violaciones de restricciones) en un único valor escalar. Según las recomendaciones 
+técnicas recibidas, este enfoque presenta debilidades críticas: una alta sensibilidad a los 
+pesos asignados y la posibilidad de generar soluciones artificiales por compensación numérica 
+entre términos de distinta naturaleza física. \\
+
+Por tanto, como se adelantó en la propuesta inicial, el problema del \textit{rendezvous} robótico 
+definido en este trabajo se puede formular como \textbf{bi-objetivo}. El objetivo ideal es 
+minimizar simultáneamente los tiempos de ejecución de ambos robots:
+\begin{equation}
+\min_{\mathbf{p}_A,\mathbf{q}_A,\mathbf{p}_B,\mathbf{q}_B,\mathbf{s}_A,\mathbf{s}_B,\mathbf{s}_{rail}}
+\;\; \mathbf{T}(\cdot),
+\end{equation}
+
+con
+\[
+\mathbf{T}(\cdot) = 
+\begin{bmatrix}
+t_A(\mathbf{p}_A,\mathbf{q}_A,\mathbf{s}_A) \\
+t_B(\mathbf{p}_B,\mathbf{q}_B,\mathbf{s}_B,\mathbf{s}_{rail})
+\end{bmatrix},
+\]
+
+%\begin{equation}
+%    \min \mathbf{f}(\mathbf{x}) = (t_A, t_B)
+%\end{equation}
+sujeto a la restricción de sincronización $|t_A - t_B| \le \Delta t$ y a las restricciones 
+geométricas y cinemáticas del sistema. El planteamiento multiobjetivo permite obtener 
+un \textbf{frente de Pareto}, proporcionando un conjunto de soluciones óptimas que revelan el 
+compromiso real (\textit{trade-off}) entre la velocidad de cada robot y la precisión de la 
+sincronización, en lugar de una única solución condicionada por un ajuste manual de pesos.
+
+\subsection*{Algoritmo seleccionado: NSGA-II}
+Para la resolución de este modelo se ha seleccionado el algoritmo \textbf{NSGA-II} 
+(\textit{Nondominated Sorting Genetic Algorithm II}). Esta técnica es el estándar para problemas 
+con múltiples objetivos debido a su eficiencia y robustez. El algoritmo se basa en dos mecanismos 
+fundamentales:
+\begin{itemize}
+    \item \textbf{Ordenación No Dominada (\textit{Nondominated Sorting}):} Clasifica a los individuos en 
+    frentes sucesivos de dominancia de Pareto. Una solución domina a otra si es igual de buena en 
+    todos los objetivos y estrictamente mejor en al menos uno.
+    \item \textbf{Distancia de Apiñamiento (\textit{Crowding Distance}):} Se utiliza para desempatar entre 
+    soluciones del mismo frente, favoreciendo aquellas situadas en regiones menos densas del espacio
+    de objetivos para garantizar una distribución uniforme de soluciones a lo largo de todo el frente
+    de Pareto.
+\end{itemize}
+
+\subsection*{Diseño y operadores}
+Siguiendo la arquitectura de dos niveles validada en el Tema 2, se mantiene una
+\textbf{codificación real} de las variables de decisión: $\mathbf{x} = (s_A, s_B, s_{rail}, p_{rail})$. 
+Los operadores se adaptan de la siguiente manera:
+\begin{itemize}
+    \item \textbf{Cruce y Mutación:} Se emplean operadores para codificación real compatibles con el
+    sistema de cobots, manteniendo la reparación de soluciones (\textit{InRange}) tras cada 
+    operación para asegurar la factibilidad cinemática.
+    \item \textbf{Selección de Padres:} Se utiliza el \textbf{método de torneo}, que resulta
+    más sencillo y eficaz en problemas multiobjetivo al permitir comparaciones directas basadas 
+    en la definición de optimalidad de Pareto.
+    \item \textbf{Recombinación Elitista:} NSGA-II combina la población actual con la descendencia 
+    generada y selecciona los mejores individuos para la siguiente generación basándose en el 
+    frente de Pareto y la diversidad, asegurando que los mejores hallazgos no se pierdan.
+\end{itemize}
+
+\subsection*{Plan experimental y métricas de calidad}
+Siguiendo el rigor estadístico del \textbf{Anexo de evaluación}, se realizarán \textbf{30 ejecuciones independientes} para capturar la variabilidad del proceso \cite{27, 198}. Dado que el resultado es un conjunto de soluciones (frente de Pareto) y no un valor único, se emplearán métricas específicas de optimización multiobjetivo \cite{180, 199}:
+\begin{enumerate}
+    \item \textbf{Hipervolumen (HV):} Mide el volumen del espacio de objetivos dominado por el frente obtenido respecto a un punto de referencia \cite{180, 184}.
+    \item \textbf{Indicador Epsilon ($\epsilon$):} Evalúa la proximidad del frente hallado respecto a un frente de referencia ideal \cite{180, 183}.
+    \item \textbf{Diversidad y Cobertura:} Grado de extensión y uniformidad de las soluciones a lo largo de la frontera de Pareto \cite{180, 199}.
+\end{enumerate}
+
+\subsection*{Resultados (Esquema)}
+
+Los resultados obtenidos mediante la aplicación de NSGA-II se presentan a continuación, comparando la calidad del frente de Pareto obtenido frente a los resultados mono-objetivo del algoritmo de Evolución Diferencial previo.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Configuración} & \textbf{Media HV} & \textbf{Desv. Típica HV} & \textbf{Mejor $\epsilon$} & \textbf{Factibilidad (\%)} \\ \hline
+NSGA-II (Propuesto)    & --                & --                       & --                        & --                         \\ \hline
+DE Mono-objetivo       & --                & --                       & --                        & --                         \\ \hline
+\end{tabular}
+\caption{Métricas de rendimiento multiobjetivo comparadas.}
+\end{table}
+
+\begin{figure}[h!]
+    \centering
+    % Aquí se incluiría el gráfico del Frente de Pareto (t_A vs t_B)
+    \caption{Visualización del Frente de Pareto obtenido por NSGA-II.}
+\end{figure}
