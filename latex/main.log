@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.10.21)  25 MAY 2026 12:41
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.10.21)  8 JUN 2026 15:28
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -794,7 +794,11 @@ LaTeX Info: Redefining \% on input line 12.
 
 LaTeX Warning: Label `tab:tema2_tabla2' multiply defined.
 
-) (./propuesta_tecnica_tema3.aux))
+) (./propuesta_tecnica_tema3.aux) (./respuestaTema3.aux
+
+LaTeX Warning: Label `fig:curvaMedia' multiply defined.
+
+))
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 4.
@@ -1491,21 +1495,106 @@ Underfull \hbox (badness 2181) in paragraph at lines 84--88
  []
 
 ) [28]
+\openout2 = `respuestaTema3.aux'.
+
+ (./respuestaTema3.tex
 File: Images/ucm_uned.png Graphic file (type bmp)
 <Images/ucm_uned.png>
 
-Underfull \hbox (badness 1210) in paragraph at lines 53--53
+Underfull \hbox (badness 10000) in paragraph at lines 5--7
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 14--18
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 19--27
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 28--32
+
+ []
+
+File: Images/tema3/boxplot_Tmax.png Graphic file (type bmp)
+<Images/tema3/boxplot_Tmax.png>
+[29
+
+
+
+]
+File: Images/tema3/boxplot_pA_x_pB_x.png Graphic file (type bmp)
+<Images/tema3/boxplot_pA_x_pB_x.png>
+File: Images/tema3/visualizacion_pA_pB.png Graphic file (type bmp)
+<Images/tema3/visualizacion_pA_pB.png>
+ [30]
+Underfull \hbox (badness 10000) in paragraph at lines 94--102
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 103--109
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 110--115
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 116--123
+
+ []
+
+[31]
+File: Images/tema3/convergencia_J_media.png Graphic file (type bmp)
+<Images/tema3/convergencia_J_media.png>
+
+Underfull \hbox (badness 10000) in paragraph at lines 143--147
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 148--152
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 153--157
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 158--160
+
+ []
+
+[32]
+Underfull \hbox (badness 10000) in paragraph at lines 161--164
+
+ []
+
+) [33]
+File: Images/ucm_uned.png Graphic file (type bmp)
+<Images/ucm_uned.png>
+
+Underfull \hbox (badness 1210) in paragraph at lines 54--54
 []\TU/4.ttf(0)/m/n/12 Antonio Barrientos et al. \TU/4.ttf(0)/m/it/12 Fundamentos de robótica\TU/4.ttf(0)/m/n/12 . spa. 2.[] ed. Madrid: McGraw-Hill
  []
 
-[29
+[34
 
 
 ] (./main.aux
 LaTeX Info: Redefining \sptext on input line 12.
 LaTeX Info: Redefining \. on input line 12.
 LaTeX Info: Redefining \% on input line 12.
- (./autoria.aux) (./intro.aux) (./tarea.aux) (./propuesta.aux) (./propuesta_tecnica_tema2.aux) (./revisionTarea2.aux) (./propuesta_tecnica_tema3.aux))
+ (./autoria.aux) (./intro.aux) (./tarea.aux) (./propuesta.aux) (./propuesta_tecnica_tema2.aux) (./revisionTarea2.aux) (./propuesta_tecnica_tema3.aux) (./respuestaTema3.aux))
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -1518,7 +1607,7 @@ LaTeX Warning: There were undefined references.
 LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: B9ACB94D5E94E154FAD474C266014D8B;4803.
+(rerunfilecheck)             Checksum: 5927CA0F2965EBDF85750CF60ED9E219;5443.
 
 Package biblatex Warning: Please (re)run Biber on the file:
 (biblatex)                main
@@ -1529,12 +1618,12 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 26324 strings out of 476824
- 505583 string characters out of 5803866
+ 26389 strings out of 476824
+ 507731 string characters out of 5803866
  1936627 words of memory out of 5000000
- 47852 multiletter control sequences out of 15000+600000
+ 47908 multiletter control sequences out of 15000+600000
  563322 words of font info for 86 fonts, out of 8000000 for 9000
  40 hyphenation exceptions out of 8191
  94i,12n,107p,736b,4957s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.pdf (29 pages).
+Output written on main.pdf (34 pages).
