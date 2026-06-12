@@ -33,7 +33,7 @@ def diversity(front):
 
 def main():
 
-    N_RUNS = 4
+    N_RUNS = 30
 
     offset = np.array([0.20, 0.0, 0.0])
 

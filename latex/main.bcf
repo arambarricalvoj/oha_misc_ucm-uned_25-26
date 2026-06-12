@@ -2374,9 +2374,7 @@
     <bcf:citekey order="9" intorder="1">180</bcf:citekey>
     <bcf:citekey order="9" intorder="2">184</bcf:citekey>
     <bcf:citekey order="10" intorder="1">180</bcf:citekey>
-    <bcf:citekey order="10" intorder="2">183</bcf:citekey>
-    <bcf:citekey order="11" intorder="1">180</bcf:citekey>
-    <bcf:citekey order="11" intorder="2">199</bcf:citekey>
+    <bcf:citekey order="10" intorder="2">199</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">
