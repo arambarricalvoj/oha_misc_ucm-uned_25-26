@@ -79,8 +79,6 @@ def fast_nondominated_sort(fitness):
 
         i += 1
         fronts.append(next_front)
-    
-    print([len(f) for f in fronts])
 
     return fronts[:-1]
 
@@ -154,10 +152,7 @@ def nsga2_timing_level(
         pop[i, 0] = np.random.uniform(0.05, 1.0)   # sA
         pop[i, 1] = np.random.uniform(0.05, 1.0)   # sB
         pop[i, 2] = np.random.uniform(0.05, 1.0)   # sRail
-        pop[i, 3] = np.random.uniform(
-            rail_min,
-            rail_max
-        )
+        pop[i, 3] = np.random.uniform(rail_min, rail_max)
 
     # ========================================================
     # BUCLE EVOLUTIVO
@@ -175,38 +170,16 @@ def nsga2_timing_level(
 
             idxs = [j for j in range(pop_size) if j != i]
 
-            r1, r2, r3 = np.random.choice(
-                idxs,
-                size=3,
-                replace=False
-            )
+            r1, r2, r3 = np.random.choice(idxs, size=3, replace=False)
 
-            mutant = (
-                pop[r1]
-                + F * (pop[r2] - pop[r3])
-            )
-
-            mutant = repair_vector(
-                mutant,
-                rail_min,
-                rail_max
-            )
+            mutant = pop[r1] + F * (pop[r2] - pop[r3])
+            mutant = repair_vector(mutant, rail_min, rail_max)
 
             mask = np.random.rand(4) < CR
-
             mask[np.random.randint(4)] = True
 
-            trial = np.where(
-                mask,
-                mutant,
-                pop[i]
-            )
-
-            trial = repair_vector(
-                trial,
-                rail_min,
-                rail_max
-            )
+            trial = np.where(mask, mutant, pop[i])
+            trial = repair_vector(trial, rail_min, rail_max)
 
             offspring[i] = trial
 
@@ -214,23 +187,10 @@ def nsga2_timing_level(
         # UNIÓN PADRES + HIJOS
         # ----------------------------------------------------
 
-        combined = np.vstack(
-            (
-                pop,
-                offspring
-            )
-        )
+        combined = np.vstack((pop, offspring))
 
-        fitness = np.zeros(
-            (
-                2 * pop_size,
-                2
-            )
-        )
-
-        # ----------------------------------------------------
-        # EVALUACIÓN MULTIOBJETIVO
-        # ----------------------------------------------------
+        # NUEVA FUNCIÓN OBJETIVO: (Tmax, |tA - tB|)
+        fitness = np.zeros((2 * pop_size, 2))
 
         for i in range(2 * pop_size):
 
@@ -243,48 +203,42 @@ def nsga2_timing_level(
 
             tA, tB = compute_times(sol)
 
-            fitness[i, 0] = tA
-            fitness[i, 1] = tB
+            Tmax = max(tA, tB)
+            deltaT = abs(tA - tB)
+
+            fitness[i, 0] = Tmax
+            fitness[i, 1] = deltaT
+
+        # LOGGING
+        if gen == 0:
+            log = []
+
+        gen_data = []
+        for i in range(2 * pop_size):
+            gen_data.append([
+                combined[i,0], combined[i,1], combined[i,2], combined[i,3],
+                fitness[i,0], fitness[i,1]
+            ])
+        log.append(gen_data)
 
         # ----------------------------------------------------
         # FAST NON-DOMINATED SORT
         # ----------------------------------------------------
 
-        fronts = fast_nondominated_sort(
-            fitness
-        )
+        fronts = fast_nondominated_sort(fitness)
 
         selected = []
 
         for front in fronts:
 
             if len(selected) + len(front) <= pop_size:
-
                 selected.extend(front)
 
             else:
-
-                distances = crowding_distance(
-                    fitness,
-                    front
-                )
-
-                order = np.argsort(
-                    -distances
-                )
-
-                remaining = (
-                    pop_size
-                    - len(selected)
-                )
-
-                selected.extend(
-                    [
-                        front[i]
-                        for i in order[:remaining]
-                    ]
-                )
-
+                distances = crowding_distance(fitness, front)
+                order = np.argsort(-distances)
+                remaining = pop_size - len(selected)
+                selected.extend([front[i] for i in order[:remaining]])
                 break
 
         pop = combined[selected]
@@ -293,12 +247,7 @@ def nsga2_timing_level(
     # EVALUACIÓN FINAL
     # ========================================================
 
-    fitness = np.zeros(
-        (
-            pop_size,
-            2
-        )
-    )
+    fitness = np.zeros((pop_size, 2))
 
     for i in range(pop_size):
 
@@ -309,11 +258,12 @@ def nsga2_timing_level(
         sol.sRail = pop[i, 2]
         sol.pRail = pop[i, 3]
 
-        fitness[i] = compute_times(sol)
+        tA, tB = compute_times(sol)
 
-    fronts = fast_nondominated_sort(
-        fitness
-    )
+        fitness[i, 0] = max(tA, tB)
+        fitness[i, 1] = abs(tA - tB)
+
+    fronts = fast_nondominated_sort(fitness)
 
     pareto_front = []
 
@@ -328,4 +278,4 @@ def nsga2_timing_level(
 
         pareto_front.append(sol)
 
-    return pareto_front
+    return pareto_front, log

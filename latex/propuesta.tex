@@ -150,10 +150,11 @@ Se tiene un total de 17 variables de decisión:
 
 \section*{Función objetivo}
 \addcontentsline{toc}{subsection}{Función objetivo}
-\[
+\begin{equation}
 \min_{\mathbf{p}_A,\mathbf{q}_A,\mathbf{p}_B,\mathbf{q}_B,\mathbf{s}_A,\mathbf{s}_B,\mathbf{s}_{rail}}\; 
 T_{\text{rendezvous}} \;=\; \min\; \max\big(t_A(\mathbf{p}_A,\mathbf{q}_A,\mathbf{s}_A),\,t_B(\mathbf{p}_B,\mathbf{q}_B,\mathbf{s}_B,\mathbf{s}_{rail})\big),
-\]
+\label{eq:fo-mono}
+\end{equation}
 
 donde los tiempos $t_A$ y $t_B$ se refiere a los tiempos $t_{r}(\mathbf{p}_r,\mathbf{q}_r,\mathbf{s}_r)$
 necesarios por cada robot para alcanzar
