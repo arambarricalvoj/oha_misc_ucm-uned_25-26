@@ -26,5 +26,10 @@
 \contentsline {section}{Desarrollo de la propuesta técnica de búsqueda evolutiva}{29}{section*.63}%
 \contentsline {subsection}{Resultados principales}{29}{section*.64}%
 \contentsline {subsection}{Conclusiones}{34}{section*.72}%
-\contentsline {section}{Definición multi-objetivo del problema y resolución}{35}{section*.74}%
+\contentsline {section}{Definición multiobjetivo del problema y resolución}{35}{section*.74}%
+\contentsline {subsection}{Fundamento técnico y justificación}{35}{section*.75}%
+\contentsline {subsection}{Algoritmo seleccionado: \textit {NSGA-II}}{35}{section*.76}%
+\contentsline {subsection}{Diseño y operadores}{36}{section*.77}%
+\contentsline {subsection}{Plan experimental y métricas de calidad}{36}{section*.78}%
+\contentsline {subsection}{Resultados, reformulación y conclusiones generales del trabajo}{37}{section*.79}%
 \contentsline {section}{Referencias adicionales al Campus Virtual}{42}{section*.87}%

@@ -1,9 +1,10 @@
 \newpage
 \datos{color}{}{}
-\section*{Definición multi-objetivo del problema y resolución}
-\addcontentsline{toc}{section}{Definición multi-objetivo del problema y resolución}
+\section*{Definición multiobjetivo del problema y resolución}
+\addcontentsline{toc}{section}{Definición multiobjetivo del problema y resolución}
 
 \subsection*{Fundamento técnico y justificación}
+\addcontentsline{toc}{subsection}{Fundamento técnico y justificación}
 Hasta este punto, el problema se ha abordado mediante una función de mérito penalizada que 
 combina objetivos heterogéneos (tiempo máximo $T_{max}$, desincronización $|t_A - t_B|$ y 
 violaciones de restricciones) en un único valor escalar. Según las recomendaciones 
@@ -51,6 +52,7 @@ compromiso real (\textit{trade-off}) entre la velocidad de cada robot y la preci
 sincronización, en lugar de una única solución condicionada por un ajuste manual de pesos.
 
 \subsection*{Algoritmo seleccionado: \textit{NSGA-II}}
+\addcontentsline{toc}{subsection}{Algoritmo seleccionado: \textit{NSGA-II}}
 Para la resolución de este modelo se ha seleccionado el algoritmo \textit{NSGA-II} 
 (\textit{Nondominated Sorting Genetic Algorithm II}). Esta técnica es el estándar para problemas 
 con múltiples objetivos debido a su eficiencia y robustez. El algoritmo se basa en dos mecanismos 
@@ -66,19 +68,20 @@ fundamentales:
 \end{itemize}
 
 \subsection*{Diseño y operadores}
+\addcontentsline{toc}{subsection}{Diseño y operadores}
 Siguiendo la arquitectura de dos niveles validada en el Tema 2, se mantiene una
 codificación real de las variables de decisión: $\mathbf{x} = (s_A, s_B, s_{rail}, p_{rail})$. 
 Los operadores se adaptan de la siguiente manera:
 \begin{itemize}
 
-    \item \textbf{Mutación diferencial (DE/rand/1)}: se genera un vector mutante a partir de tres
+    \item \textbf{Mutación diferencial (DE/rand/1 del Tema 3)}: se genera un vector mutante a partir de tres
     individuos seleccionados aleatoriamente: $v_i = x_{r1} + F \cdot (x_{r2} - x_{r3})$,
     lo que favorece la exploración del espacio continuo de búsqueda.
     Este operador es adecuado para variables reales y se adapta de forma natural al sistema de
     \textit{cobots}.  
 
     \item \textbf{Cruce binomial}: el individuo mutante $v_i$ se combina con el individuo original
-    mediante una máscara binaria con probabilidad $CR$, garantizando que al menos un componente
+    mediante una máscara binaria con probabilidad $CR$ (Tema 3), garantizando que al menos un componente
     provenga del mutante. 
 
     \item \textbf{Reparación \textit{InRange}}: tras cada operación de mutación o cruce, se aplica una
@@ -127,7 +130,9 @@ adyacentes.
 \end{comment}
 
 \subsection*{Plan experimental y métricas de calidad}
+\addcontentsline{toc}{subsection}{Plan experimental y métricas de calidad}
 Se realizarán 30 ejecuciones independientes para capturar la variabilidad del proceso. 
+El tamaño de la población se establece en 20.
 Dado que el resultado es un conjunto de soluciones (frente de Pareto) y no un valor único, 
 se emplearán métricas específicas de optimización multiobjetivo:
 \begin{enumerate}
@@ -173,7 +178,7 @@ DE Mono-objetivo       & --                & --                       & --      
 %%%%%%%%%
 
 \subsection*{Resultados, reformulación y conclusiones generales del trabajo}
-
+\addcontentsline{toc}{subsection}{Resultados, reformulación y conclusiones generales del trabajo}
 El comportamiento del algoritmo refleja una alta eficiencia en la exploración del hipercubo de decisión de cuatro dimensiones 
 ($s_A, s_B, s_{rail}, p_{rail}$). A diferencia de los resultados obtenidos en el Tema 2 mediante Temple Simulado y en el Tema 3
 mediante Evolución Diferencial, el algoritmo multiobjetivo \textit{NSGA-II} identifica y explota por completo el sesgo inherente 
