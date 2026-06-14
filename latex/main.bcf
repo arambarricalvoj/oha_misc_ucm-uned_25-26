@@ -2367,14 +2367,6 @@
     <bcf:citekey order="4" intorder="1">murray1994mathematical</bcf:citekey>
     <bcf:citekey order="5" intorder="1">barfoot2014associating</bcf:citekey>
     <bcf:citekey order="6" intorder="1">hollander2013nonparametric</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">27</bcf:citekey>
-    <bcf:citekey order="7" intorder="2">198</bcf:citekey>
-    <bcf:citekey order="8" intorder="1">180</bcf:citekey>
-    <bcf:citekey order="8" intorder="2">199</bcf:citekey>
-    <bcf:citekey order="9" intorder="1">180</bcf:citekey>
-    <bcf:citekey order="9" intorder="2">184</bcf:citekey>
-    <bcf:citekey order="10" intorder="1">180</bcf:citekey>
-    <bcf:citekey order="10" intorder="2">199</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">

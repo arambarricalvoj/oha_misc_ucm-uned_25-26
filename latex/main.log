@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.10.21)  12 JUN 2026 21:53
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.10.21)  14 JUN 2026 17:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1511,18 +1511,13 @@ Underfull \hbox (badness 10000) in paragraph at lines 14--18
  []
 
 
-Overfull \hbox (21.3747pt too wide) detected at line 27
-\OT1/cmr/m/n/12 ([][]\OML/cmm/m/it/12 ; [][]; [][]; [][]; s[]; s[]; s[]\OT1/cmr/m/n/12 ) = ((0[]47\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 0[]05\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 0[]04)\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 (0[]67\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 0[]05\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 0[]04\OML/cmm/m/it/12 ; p[] \OT1/cmr/m/n/12 = 0[]67)\OML/cmm/m/it/12 ; qA; qB; \OT1/cmr/m/n/12 0[]55\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 0[]92\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 0[]88)\OML/cmm/m/it/12 ;
+Underfull \hbox (badness 1097) in paragraph at lines 29--37
+\TU/4.ttf(0)/m/n/12 recordar que resulta evidente que la mejor solución, es decir, aquella con menor tiempo
  []
 
 
-Underfull \hbox (badness 1286) in paragraph at lines 29--37
-[]\TU/4.ttf(0)/m/n/12 mientras que el peor se sitúa en 1.67s, lo que define el rango completo de rendimiento
- []
-
-
-Underfull \hbox (badness 2088) in paragraph at lines 29--37
-\TU/4.ttf(0)/m/n/12 está introduciendo un sesgo al algoritmo para explorar únicamente perfiles elevados de
+Underfull \hbox (badness 2460) in paragraph at lines 29--37
+\TU/4.ttf(0)/m/n/12 reduciendo el espacio de búsqueda, provocando una posible convergencia prematura y
  []
 
 
@@ -1552,73 +1547,65 @@ File: Images/tema3/boxplot_pA_x_pB_x.png Graphic file (type bmp)
 File: Images/tema3/visualizacion_pA_pB.png Graphic file (type bmp)
 <Images/tema3/visualizacion_pA_pB.png>
  [30]
-Underfull \hbox (badness 10000) in paragraph at lines 103--112
+Underfull \hbox (badness 10000) in paragraph at lines 114--123
 
  []
 
 [31]
-Underfull \hbox (badness 10000) in paragraph at lines 113--119
+Underfull \hbox (badness 10000) in paragraph at lines 124--130
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 120--125
+Underfull \hbox (badness 10000) in paragraph at lines 131--136
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 126--133
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 134--136
+Underfull \hbox (badness 10000) in paragraph at lines 137--145
 
  []
 
 File: Images/tema3/convergencia_J_media.png Graphic file (type bmp)
 <Images/tema3/convergencia_J_media.png>
-[32]
 File: Images/tema3/convergencia_Tmax_media.png Graphic file (type bmp)
 <Images/tema3/convergencia_Tmax_media.png>
- [33]
-Underfull \hbox (badness 10000) in paragraph at lines 177--184
+[32]
+Underfull \hbox (badness 10000) in paragraph at lines 185--192
 
  []
 
 
-Underfull \hbox (badness 1132) in paragraph at lines 185--193
+Underfull \hbox (badness 1132) in paragraph at lines 193--201
 \TU/4.ttf(0)/m/n/12 En un dominio tan reducido, las distintas configuraciones del algoritmo exploran regiones
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 185--193
+Underfull \hbox (badness 10000) in paragraph at lines 193--201
 
  []
 
 Excluding 'comment' comment.
-Underfull \hbox (badness 10000) in paragraph at lines 254--263
+Underfull \hbox (badness 10000) in paragraph at lines 262--271
+
+ []
+
+[33]
+Underfull \hbox (badness 10000) in paragraph at lines 272--280
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 264--272
-
- []
-
-[34
-
-]
-Underfull \hbox (badness 10000) in paragraph at lines 273--284
+Underfull \hbox (badness 10000) in paragraph at lines 281--293
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 285--293
+Underfull \hbox (badness 10000) in paragraph at lines 294--302
 
  []
 
-) [35]
+) [34]
 \openout2 = `multiobjetivo.aux'.
 
  (./multiobjetivo.tex
@@ -1630,78 +1617,54 @@ Underfull \hbox (badness 10000) in paragraph at lines 7--13
  []
 
 
-Underfull \hbox (badness 3803) in paragraph at lines 62--66
-[]\TU/4.ttf(0)/b/n/12 Distancia de Aglomeración (\TU/4.ttf(0)/b/it/12 Crowding Distance\TU/4.ttf(0)/b/n/12 ): \TU/4.ttf(0)/m/n/12 Se utiliza para desempatar entre
+Underfull \hbox (badness 4156) in paragraph at lines 62--66
+[]\TU/4.ttf(0)/b/n/12 Distancia de Aglomeración (\TU/4.ttf(0)/b/it/12 Crowding Distance\TU/4.ttf(0)/b/n/12 ): \TU/4.ttf(0)/m/n/12 se utiliza para desempatar entre
  []
 
-[36
+[35
 
 
 
 ]
-
-LaTeX Warning: Citation '27' on page 37 undefined on input line 85.
-
-
-LaTeX Warning: Citation '198' on page 37 undefined on input line 85.
-
-
-LaTeX Warning: Citation '180' on page 37 undefined on input line 85.
-
-
-LaTeX Warning: Citation '199' on page 37 undefined on input line 85.
-
-
-Underfull \hbox (badness 7540) in paragraph at lines 85--87
-[]\TU/4.ttf(0)/m/n/12 Siguiendo el rigor estadístico del \TU/4.ttf(0)/b/n/12 Anexo de evaluación\TU/4.ttf(0)/m/n/12 , se realizarán \TU/4.ttf(0)/b/n/12 30 ejecuciones
+Underfull \hbox (badness 4792) in paragraph at lines 88--91
+[]\TU/4.ttf(0)/b/n/12 Evaluación multiobjetivo\TU/4.ttf(0)/m/n/12 : cada individuo se evalúa mediante los objetivos $\OML/cmm/m/it/12 f[] \OT1/cmr/m/n/12 =
  []
 
 
-LaTeX Warning: Citation '180' on page 37 undefined on input line 87.
-
-
-LaTeX Warning: Citation '184' on page 37 undefined on input line 87.
-
-
-LaTeX Warning: Citation '180' on page 37 undefined on input line 88.
-
-
-LaTeX Warning: Citation '199' on page 37 undefined on input line 88.
-
-
-Underfull \hbox (badness 1102) in paragraph at lines 93--94
-[]\TU/4.ttf(0)/m/n/12 Los resultados obtenidos mediante la aplicación de NSGA-II se presentan a continuación,
+Underfull \hbox (badness 3375) in paragraph at lines 88--91
+\OML/cmm/m/it/12 T[];  f[] \OT1/cmr/m/n/12 = \OMS/cmsy/m/n/12 j\OML/cmm/m/it/12 t[] \OMS/cmsy/m/n/12 ^^@ \OML/cmm/m/it/12 t[]\OMS/cmsy/m/n/12 j\OML/cmm/m/it/12 ;$ \TU/4.ttf(0)/m/n/12 que cuantifican el tiempo máximo de ejecución y la
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 116--122
+Excluding 'comment' comment. Excluding 'comment' comment.
+Underfull \hbox (badness 10000) in paragraph at lines 177--184
 
  []
 
-[37]
-Underfull \hbox (badness 1173) in paragraph at lines 131--139
+[36]
+Underfull \hbox (badness 1173) in paragraph at lines 193--201
 \TU/4.ttf(0)/m/n/12 ha identificado correctamente el óptimo matemático para la minimización de los tiempos
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 157--161
+Underfull \hbox (badness 10000) in paragraph at lines 220--224
 
  []
 
-[38]
-Underfull \hbox (badness 1968) in paragraph at lines 224--230
-[]\TU/4.ttf(0)/m/n/12 A diferencia de la optimización monoobjetivo, es necesario elegir un mejor conjunto de
+
+Underfull \hbox (badness 10000) in paragraph at lines 240--244
+
  []
 
+[37]
 File: Images/tema3/HV_media.png Graphic file (type bmp)
 <Images/tema3/HV_media.png>
-[39]
-Underfull \hbox (badness 4205) in paragraph at lines 238--241
-[]\TU/4.ttf(0)/m/n/12 También se evalúa la diversidad de los Frentes de Pareto ([]Figura 17[][]). Esta se reduce
+ [38]
+Underfull \hbox (badness 4013) in paragraph at lines 306--309
+[]\TU/4.ttf(0)/m/n/12 También se evalúa la diversidad de los Frentes de Pareto ([]Figura 16[][]). Esta se reduce
  []
 
 
-Underfull \hbox (badness 4144) in paragraph at lines 238--241
+Underfull \hbox (badness 4144) in paragraph at lines 306--309
 \TU/4.ttf(0)/m/n/12 progresivamente a lo largo de las generaciones, resultando en unos frentes altamente
  []
 
@@ -1709,67 +1672,62 @@ File: Images/tema3/diversity_media.png Graphic file (type bmp)
 <Images/tema3/diversity_media.png>
 File: Images/tema3/pareto_front.png Graphic file (type bmp)
 <Images/tema3/pareto_front.png>
+[39]
+Underfull \hbox (badness 10000) in paragraph at lines 378--383
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 384--390
+
+ []
+
 [40]
-Overfull \hbox (24.11131pt too wide) in paragraph at lines 264--294
- [][] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 310--315
+Underfull \hbox (badness 10000) in paragraph at lines 391--400
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 316--322
-
- []
-
-[41]
-Underfull \hbox (badness 10000) in paragraph at lines 323--331
-
+Underfull \hbox (badness 1668) in paragraph at lines 401--406
+[]\TU/4.ttf(0)/m/n/12 De forma complementaria, el trabajo ha demostrado la necesidad de disponer de datos
  []
 
 
-Underfull \hbox (badness 1681) in paragraph at lines 332--337
-[]\TU/4.ttf(0)/m/n/12 De forma complementaria, el trabajo ha demostrado la necesidad de \TU/4.ttf(0)/b/n/12 disponer de datos
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 332--337
+Underfull \hbox (badness 10000) in paragraph at lines 401--406
 
  []
 
 
-Underfull \hbox (badness 4805) in paragraph at lines 338--345
-[]\TU/4.ttf(0)/m/n/12 Los resultados muestran que las variables del Frente de Pareto presentan variaciones
+Underfull \hbox (badness 2717) in paragraph at lines 407--414
+\TU/4.ttf(0)/m/n/12 por ejemplo limitando las variables continuas a dos decimales durante las evoluciones.
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 338--345
+Underfull \hbox (badness 10000) in paragraph at lines 407--414
 
  []
 
 
-Underfull \hbox (badness 3758) in paragraph at lines 346--353
+Underfull \hbox (badness 3758) in paragraph at lines 415--422
 \TU/4.ttf(0)/m/n/12 según criterios externos al modelo (seguridad, facilidad de implementación, ergonomía,
  []
 
 
-Underfull \hbox (badness 2512) in paragraph at lines 346--353
+Underfull \hbox (badness 2512) in paragraph at lines 415--422
 \TU/4.ttf(0)/m/n/12 accesibilidad, etc.). En lugar de una única solución rígida, el sistema ofrece flexibilidad,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 346--353
+Underfull \hbox (badness 10000) in paragraph at lines 415--422
 
  []
 
 
-Underfull \hbox (badness 2277) in paragraph at lines 354--359
+Underfull \hbox (badness 2277) in paragraph at lines 423--428
 []\TU/4.ttf(0)/m/n/12 En conjunto, los resultados obtenidos no solo permiten diagnosticar las limitaciones del
  []
 
-[42]) [43]
+) [41]
 File: Images/ucm_uned.png Graphic file (type bmp)
 <Images/ucm_uned.png>
 
@@ -1777,7 +1735,7 @@ Underfull \hbox (badness 1194) in paragraph at lines 55--55
 []\TU/4.ttf(0)/m/n/12 Antonio Barrientos et al. \TU/4.ttf(0)/m/it/12 Fundamentos de robótica\TU/4.ttf(0)/m/n/12 . spa. 2.[] ed. Madrid: McGraw-Hill
  []
 
-[44
+[42
 
 
 ] (./main.aux
@@ -1791,29 +1749,21 @@ L3 programming layer <2024-01-22>
  ***********
 
 
-LaTeX Warning: There were undefined references.
-
-
 LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: A255417564529C2035C0DB8027B34370;5765.
-
-Package biblatex Warning: Please (re)run Biber on the file:
-(biblatex)                main
-(biblatex)                and rerun LaTeX afterwards.
-
+(rerunfilecheck)             Checksum: F03B1EB8D3B660B608EABC919E7B2D14;5765.
 Package logreq Info: Writing requests to 'main.run.xml'.
 \openout1 = `main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 26507 strings out of 476824
- 511351 string characters out of 5803866
+ 26500 strings out of 476824
+ 511185 string characters out of 5803866
  1939627 words of memory out of 5000000
- 48005 multiletter control sequences out of 15000+600000
- 566633 words of font info for 108 fonts, out of 8000000 for 9000
+ 47999 multiletter control sequences out of 15000+600000
+ 565077 words of font info for 101 fonts, out of 8000000 for 9000
  40 hyphenation exceptions out of 8191
  94i,14n,107p,736b,4957s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.pdf (44 pages).
+Output written on main.pdf (42 pages).

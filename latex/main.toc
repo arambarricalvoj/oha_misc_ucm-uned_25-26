@@ -26,5 +26,5 @@
 \contentsline {section}{Desarrollo de la propuesta técnica de búsqueda evolutiva}{29}{section*.63}%
 \contentsline {subsection}{Resultados principales}{29}{section*.64}%
 \contentsline {subsection}{Conclusiones}{34}{section*.72}%
-\contentsline {section}{Definición multi-objetivo del problema y resolución}{36}{section*.74}%
-\contentsline {section}{Referencias adicionales al Campus Virtual}{44}{section*.90}%
+\contentsline {section}{Definición multi-objetivo del problema y resolución}{35}{section*.74}%
+\contentsline {section}{Referencias adicionales al Campus Virtual}{42}{section*.87}%

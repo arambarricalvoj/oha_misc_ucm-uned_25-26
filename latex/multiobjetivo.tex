@@ -46,20 +46,20 @@ t_B(\mathbf{p}_B,\mathbf{q}_B,\mathbf{s}_B,\mathbf{s}_{rail},p_{rail})
 %\end{equation}
 sujeto a la restricción de sincronización $|t_A - t_B| \le \Delta t$ y a las restricciones 
 geométricas y cinemáticas del sistema. El planteamiento multiobjetivo permite obtener 
-un \textbf{frente de Pareto}, proporcionando un conjunto de soluciones óptimas que revelan el 
+un frente de Pareto, proporcionando un conjunto de soluciones óptimas que revelan el 
 compromiso real (\textit{trade-off}) entre la velocidad de cada robot y la precisión de la 
 sincronización, en lugar de una única solución condicionada por un ajuste manual de pesos.
 
-\subsection*{Algoritmo seleccionado: NSGA-II}
-Para la resolución de este modelo se ha seleccionado el algoritmo \textbf{NSGA-II} 
+\subsection*{Algoritmo seleccionado: \textit{NSGA-II}}
+Para la resolución de este modelo se ha seleccionado el algoritmo \textit{NSGA-II} 
 (\textit{Nondominated Sorting Genetic Algorithm II}). Esta técnica es el estándar para problemas 
 con múltiples objetivos debido a su eficiencia y robustez. El algoritmo se basa en dos mecanismos 
 fundamentales:
 \begin{itemize}
-    \item \textbf{Ordenación No Dominada (\textit{Nondominated Sorting}):} Clasifica a los individuos en 
+    \item \textbf{Ordenación No Dominada (\textit{Nondominated Sorting}):} clasifica a los individuos en 
     frentes sucesivos de dominancia de Pareto. Una solución domina a otra si es igual de buena en 
     todos los objetivos y estrictamente mejor en al menos uno.
-    \item \textbf{Distancia de Aglomeración (\textit{Crowding Distance}):} Se utiliza para desempatar entre 
+    \item \textbf{Distancia de Aglomeración (\textit{Crowding Distance}):} se utiliza para desempatar entre 
     soluciones del mismo frente, favoreciendo aquellas situadas en regiones menos densas del espacio
     de objetivos para garantizar una distribución uniforme de soluciones a lo largo de todo el frente
     de Pareto.
@@ -67,30 +67,90 @@ fundamentales:
 
 \subsection*{Diseño y operadores}
 Siguiendo la arquitectura de dos niveles validada en el Tema 2, se mantiene una
-\textbf{codificación real} de las variables de decisión: $\mathbf{x} = (s_A, s_B, s_{rail}, p_{rail})$. 
+codificación real de las variables de decisión: $\mathbf{x} = (s_A, s_B, s_{rail}, p_{rail})$. 
 Los operadores se adaptan de la siguiente manera:
 \begin{itemize}
-    \item \textbf{Cruce y Mutación:} Se emplean operadores para codificación real compatibles con el
-    sistema de cobots, manteniendo la reparación de soluciones (\textit{InRange}) tras cada 
+
+    \item \textbf{Mutación diferencial (DE/rand/1)}: se genera un vector mutante a partir de tres
+    individuos seleccionados aleatoriamente: $v_i = x_{r1} + F \cdot (x_{r2} - x_{r3})$,
+    lo que favorece la exploración del espacio continuo de búsqueda.
+    Este operador es adecuado para variables reales y se adapta de forma natural al sistema de
+    \textit{cobots}.  
+
+    \item \textbf{Cruce binomial}: el individuo mutante $v_i$ se combina con el individuo original
+    mediante una máscara binaria con probabilidad $CR$, garantizando que al menos un componente
+    provenga del mutante. 
+
+    \item \textbf{Reparación \textit{InRange}}: tras cada operación de mutación o cruce, se aplica una
+    reparación por acotación mediante funciones tipo \texttt{clip}, asegurando que todas las
+    variables cumplen los límites cinemáticos y geométricos del sistema.  
+
+    \item \textbf{Evaluación multiobjetivo}: cada individuo se evalúa mediante los objetivos
+    $f_1 = T_{\max}, \qquad f_2 = |t_A - t_B|,$ que cuantifican el tiempo máximo de ejecución y la
+    desincronización entre robots.  
+
+\item \textbf{Ordenación no dominada (\textit{Non-Dominated Sort})}: los individuos se
+clasifican en frentes de Pareto según la relación de dominancia. Un individuo $p$ domina a otro
+$q$ si se cumple $\forall m:\; f_m(p) \le f_m(q) \qquad\text{y}\qquad \exists m:\; f_m(p) < f_m(q)$,
+es decir, $p$ no es peor en ningún objetivo y es estrictamente mejor en al menos uno. El primer
+frente está formado por todos los individuos no dominados; los siguientes frentes se construyen
+eliminando iterativamente los frentes previos.
+
+\item \textbf{Distancia de hacinamiento (\textit{Crowding Distance})}: en cada frente se
+calcula una medida de densidad que permite priorizar soluciones más aisladas o diversas. 
+Para cada objetivo $m$, las soluciones del frente se ordenan y a las extremas se les
+asigna distancia infinita. Para cada solución intermedia $i$, la distancia se incrementa según
+$d_i \;+=\;
+\frac{f_{i+1}^{(m)} - f_{i-1}^{(m)}}{f_{\max}^{(m)} - f_{\min}^{(m)}}$,
+donde $f_{i+1}^{(m)}$ y $f_{i-1}^{(m)}$ son los valores del objetivo $m$ en los individuos
+adyacentes.
+
+    \item \textbf{Recombinación elitista}: la población de padres y la descendencia se
+    combinan y se seleccionan los mejores individuos según el nivel de frente y la distancia de
+    hacinamiento, garantizando que las soluciones no dominadas se mantengan generación tras
+    generación.  
+\end{itemize}
+
+\begin{comment}
+\begin{itemize}
+    \item \textbf{Cruce y mutación:} al igual que en la Evolución Diferencial monoobjetivo, 
+    se emplean operadores DE/rand/1/bin para la codificación real compatibles con el
+    sistema de \textit{cobots}, manteniendo la reparación de soluciones (\textit{InRange}) tras cada 
     operación para asegurar la factibilidad cinemática.
-    \item \textbf{Selección de Padres:} Se utiliza el \textbf{método de torneo}, que resulta
+    \item \textbf{Selección de progenitores:} se utiliza el método de torneo, que resulta
     más sencillo y eficaz en problemas multiobjetivo al permitir comparaciones directas basadas 
     en la definición de optimalidad de Pareto.
-    \item \textbf{Recombinación Elitista:} NSGA-II combina la población actual con la descendencia 
+    \item \textbf{Recombinación elitista:} se combina la población actual con la descendencia 
     generada y selecciona los mejores individuos para la siguiente generación basándose en el 
     frente de Pareto y la diversidad, asegurando que los mejores hallazgos no se pierdan.
 \end{itemize}
+\end{comment}
 
 \subsection*{Plan experimental y métricas de calidad}
-Siguiendo el rigor estadístico del \textbf{Anexo de evaluación}, se realizarán \textbf{30 ejecuciones independientes} para capturar la variabilidad del proceso \cite{27, 198}. Dado que el resultado es un conjunto de soluciones (frente de Pareto) y no un valor único, se emplearán métricas específicas de optimización multiobjetivo \cite{180, 199}:
+Se realizarán 30 ejecuciones independientes para capturar la variabilidad del proceso. 
+Dado que el resultado es un conjunto de soluciones (frente de Pareto) y no un valor único, 
+se emplearán métricas específicas de optimización multiobjetivo:
 \begin{enumerate}
-    \item \textbf{Hipervolumen (HV):} Mide el volumen del espacio de objetivos dominado por el frente obtenido respecto a un punto de referencia \cite{180, 184}.
-    \item \textbf{Diversidad y Cobertura:} Grado de extensión y uniformidad de las soluciones a lo largo de la frontera de Pareto \cite{180, 199}.
+    \item \textbf{Hipervolumen (HV):} cuantifica la calidad global del frente midiendo 
+    el área del espacio de objetivos dominado por cada solución respecto a un punto de 
+    referencia. El punto de referencia se obtiene tomando, para cada
+objetivo, el peor valor observado entre todas las soluciones y ampliándolo un 20\%. % para
+%garantizar que se sitúe en una región claramente peor que todas las
+%soluciones del frente.
+    
+    \item \textbf{Diversidad:} evalúa la uniformidad de las soluciones a lo largo del 
+    frente de Pareto. Se calculan las distancias
+    euclídeas entre soluciones consecutivas y se obtiene su desviación estándar.
+    Valores bajos indican una distribución homogénea.
 \end{enumerate}
 
-\subsection*{Resultados (Esquema)}
 
-Los resultados obtenidos mediante la aplicación de NSGA-II se presentan a continuación, comparando la calidad del frente de Pareto obtenido frente a los resultados mono-objetivo del algoritmo de Evolución Diferencial previo.
+
+\begin{comment}
+\subsection*{Resultados (esquema)}
+
+Los resultados obtenidos mediante la aplicación de \textit{NSGA-II}
+se presentan a continuación, comparando la calidad del frente de Pareto obtenido frente a los resultados mono-objetivo del algoritmo de Evolución Diferencial previo.
 
 \begin{table}[h!]
 \centering
@@ -105,9 +165,10 @@ DE Mono-objetivo       & --                & --                       & --      
 
 \begin{figure}[h!]
     \centering
-    % Aquí se incluiría el gráfico del Frente de Pareto (t_A vs t_B)
-    \caption{Visualización del Frente de Pareto obtenido por NSGA-II.}
+    % Aquí se incluiría el gráfico del frente de Pareto (t_A vs t_B)
+    \caption{Visualización del frente de Pareto obtenido por NSGA-II.}
 \end{figure}
+\end{comment}
 
 %%%%%%%%%
 
@@ -116,12 +177,13 @@ DE Mono-objetivo       & --                & --                       & --      
 El comportamiento del algoritmo refleja una alta eficiencia en la exploración del hipercubo de decisión de cuatro dimensiones 
 ($s_A, s_B, s_{rail}, p_{rail}$). A diferencia de los resultados obtenidos en el Tema 2 mediante Temple Simulado y en el Tema 3
 mediante Evolución Diferencial, el algoritmo multiobjetivo \textit{NSGA-II} identifica y explota por completo el sesgo inherente 
-del problema hacia las velocidades máximas. Las soluciones del Frente de Pareto generado muestran una tendencia clara y 
+del problema hacia las velocidades máximas. Las soluciones del frente de Pareto generado muestran una tendencia clara y 
 consistente: en todas las soluciones no dominadas, los factores de velocidad convergen a su límite superior 
-($s_A = 1,\; s_B = 1,\; s_{rail} = 1$). Este patrón confirma un \textbf{sesgo estructural hacia la velocidad máxima}. \\
+($s_A = 1,\; s_B = 1,\; s_{rail} = 1$). Este patrón confirma un sesgo estructural hacia la velocidad 
+máxima. \\
 
-Como consecuencia, las 60 soluciones de la población final pertenecen al Frente de Pareto, pero todas ellas son 
-\textbf{idénticas en el espacio de decisión}. El algoritmo converge sistemáticamente a un único punto óptimo, cuyo valor es:
+Como consecuencia, las 60 soluciones de la población final pertenecen al frente de Pareto, pero todas ellas son 
+idénticas en el espacio de decisión. El algoritmo converge sistemáticamente a un único punto óptimo, cuyo valor es:
 \[
 (s_A, s_B, s_{rail}, p_{rail}) \approx (1,\;1,\;1,\;0.47),
 \qquad
@@ -138,6 +200,7 @@ robustez de \textit{NSGA-II}, ya que es capaz de exprimir el modelo cinemático 
 de \textit{cobots}.
 
 \begin{table}[h!]
+\footnotesize
 \centering
 \begin{tabular}{c|cccc|cc}
 \textbf{Generación} & $s_A$ & $s_B$ & $s_{rail}$ & $p_{rail}$ & $t_A$ & $t_B$ \\
@@ -155,12 +218,12 @@ los tiempos no están sincronizados.} \label{tab:log1}
 \end{table}
 
 Por otro lado, el colapso en un único punto en el espacio objetivo evidencia que la definición 
-del problema es \textbf{débil desde la perspectiva multiobjetivo}. Asimismo, los tiempos de ambos robots no están sincronizados, 
+del problema es débil desde la perspectiva multiobjetivo. Asimismo, los tiempos de ambos robots no están sincronizados, 
 por lo que la función multiobjetivo de la \autoref{eq:fo-multi} no es equivalente a la función monoobjetivo 
 de la \autoref{eq:fo-mono}. \\
 
 Dado que los resultados obtenidos con la formulación original no son satisfactorios, no resulta de interés aplicar las métricas de 
-evaluación propuestas. A partir de este análisis, se concluye que la función objetivo debe ser \textbf{reformulada} para 
+evaluación propuestas. A partir de este análisis, se concluye que la función objetivo debe ser reformulada para 
 introducir explícitamente la sincronización entre ambos robots. Una formulación adecuada consiste en optimizar simultáneamente el 
 tiempo total del ciclo y la diferencia temporal entre robots, lo que introduce un conflicto real entre rapidez y coordinación. 
 La nueva función objetivo propuesta es:
@@ -174,14 +237,26 @@ T_{\max} = \max\big(t_A(\mathbf{s}_A),\; t_B(\mathbf{s}_B,\mathbf{s}_{rail},p_{r
 \right].
 \end{equation}
 
-Esta reformulación permite generar un Frente de Pareto no degenerado, en el que las soluciones representan distintos compromisos 
+Esta reformulación permite generar un frente de Pareto no degenerado, en el que las soluciones representan distintos compromisos 
 entre minimizar el tiempo total del ciclo y maximizar la sincronización entre robots. Al realizar 30 ejecuciones independientes 
-se obtienen 30 Frentes de Pareto. En la \autoref{tab:frentes} se recogen los valores de las métricas de hipervolumen 
-y diversidad y la cantidad de soluciones en cada frente calculado.
+se obtienen 30 frentes de Pareto. En la \autoref{tab:frentes} se recogen los valores de las métricas de hipervolumen 
+y diversidad y la cantidad de soluciones en cada frente calculado. \\
+
+A diferencia de la optimización monoobjetivo, es necesario seleccionar un único conjunto de
+soluciones representativo entre las 30 ejecuciones independientes para analizarlo con mayor
+detalle. Para ello se emplea la métrica del hipervolumen (HV), definida como la suma de las áreas
+rectangulares dominadas por cada solución respecto a un punto de referencia. En esta formulación,
+el hipervolumen disminuye a medida que el frente mejora, ya que las soluciones se
+aproximan al óptimo (menores valores de $T_{\max}$ y $|t_A - t_B|$), reduciendo el área rectangular
+asociada a cada punto. Como consecuencia, el algoritmo converge hacia una región estrecha donde las
+soluciones están casi perfectamente sincronizadas y el tiempo total del ciclo es mínimo.
+En la \autoref{fig:hv} se muestra la evolución del hipervolumen medio entre las 30 ejecuciones,
+observándose que la convergencia se alcanza antes de las 30 generaciones. El valor mínimo obtenido
+es $5.44\times 10^{-5}$ en la ejecución número 8, que se selecciona como el mejor frente.
 
 \begin{table}[H]
 \centering
-\small
+\footnotesize
 \begin{tabular}{c|c|c|c}
 \textbf{Ejecución} & \textbf{Hipervolumen (HV)} & \textbf{Diversidad} & \textbf{Tamaño del frente} \\
 \hline
@@ -221,17 +296,10 @@ y diversidad y la cantidad de soluciones en cada frente calculado.
 \label{tab:frentes}
 \end{table}
 
-A diferencia de la optimización monoobjetivo, es necesario elegir un mejor conjunto de soluciones de entre las 30 generadas
-para analizarlo con mayor detalle. Se emplea la métrica del hipervolumen (HV) para seleccionar el mejor frente.
-El hipervolumen disminuye a medida que avanzan las generaciones, haciendo que el algoritmo converja hacia una región estrecha, 
-donde las soluciones están casi perfectamente sincronizadas y el tiempo total del ciclo es mínimo. En la \autoref{fig:hv}
-se presenta la gráfica del hipervolumen medio entre las 30 ejecuciones. Se observa que el algoritmo converge antes de 
-las 30 generaciones. El valor mínimo de hipervolumen obtenido es $5.44\times{10^{-5}}$ en la ejecución número $8$. 
-
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.7]{Images/tema3/HV_media.png}
-  \caption{Diagrama del hipervolumen de los Frentes de Pareto.}
+  \includegraphics[scale=0.6]{Images/tema3/HV_media.png}
+  \caption{Diagrama del hipervolumen de los frentes de Pareto.}
   \label{fig:hv}
 \end{figure}
 
@@ -241,7 +309,7 @@ del orden de $10^{-5}$.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.7]{Images/tema3/diversity_media.png}
+  \includegraphics[scale=0.6]{Images/tema3/diversity_media.png}
   \caption{Diagrama de diversidad de los Frentes de Pareto.}
   \label{fig:diversidad}
 \end{figure}
@@ -253,8 +321,8 @@ variable son de un orden muy pequeño.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.7]{Images/tema3/pareto_front.png}
-  \caption{Mejor Frente de Pareto obtenido.}
+  \includegraphics[scale=0.6]{Images/tema3/pareto_front.png}
+  \caption{Mejor frente de Pareto obtenido.}
   \label{fig:mejor_frente}
 \end{figure}
 
@@ -267,31 +335,31 @@ variable son de un orden muy pequeño.
 $s_A$      
 & 0.270151372991155 
 & 0.270358211812755 
-& 0.000206838821600000 $\approx 2.07\times10^{-4}$ \\
+& 0.000206838821600000 $\approx 2.07e-04$ \\
 $s_B$      
 & 0.999347924223072 
-& 1.000000000000000 
-& 0.000652075776928000 $\approx 6.52\times10^{-4}$ \\
+& 1.0 
+& 0.000652075776928000 $\approx 6.52e-04$ \\
 $s_{rail}$ 
 & 0.999179869267958 
-& 1.000000000000000 
-& 0.000820130732042000 $\approx 8.20\times10^{-4}$ \\
+& 1.0
+& 0.000820130732042000 $\approx 8.20e-04$ \\
 $p_{rail}$ 
 & 0.247595753956444 
 & 0.250654011816840 
-& 0.003058257860396000 $\approx 3.06\times10^{-3}$ \\
+& 0.003058257860396000 $\approx 3.06e-03$ \\
 \hline
 $T_{\max}$ 
 & 1.286026343420110 
 & 1.286996905728510 
-& 0.000970562308400000 $\approx 9.71\times10^{-4}$ \\
+& 0.000970562308400000 $\approx 9.71e-04$ \\
 $\Delta T$ 
-& 0.00000000330001070913966 
-& 0.00001406072417964310 
-& 0.0000140574241689340 $\approx 1.41\times10^{-5}$ \\
+& 3.30001070913966e-09%0.00000000330001070913966 
+& 1.406072417964310e-05%0.00001406072417964310 
+& 0.0000140574241689340 $\approx 1.41e-05$ \\
 \hline
 \end{tabular}
-\caption{Rango completo de cada variable en el Frente de Pareto final.}
+\caption{Rango completo de cada variable en el frente de Pareto final.}
 \label{tab:rango_frente}
 \end{table}
 
@@ -305,56 +373,57 @@ priorizar para elegir uno u otro frente. Las posiciones de los efectores, optimi
 (0.0386540,\;0.2168450,\;0.2690135),\;
 (0.2386540,\;0.2168450,\;0.2690135)
 \big).
-\]
+\] 
 
-El análisis realizado ha permitido \textbf{identificar claramente las causas de este 
-comportamiento y las soluciones necesarias}. El estudio comparado de los algoritmos ha puesto de manifiesto que la definición 
-actual del problema es insuficiente para generar un Frente de Pareto significativo, y que la ausencia de un objetivo explícito de 
+El análisis realizado ha permitido identificar claramente las causas de este 
+comportamiento y las soluciones necesarias. El estudio comparado de los algoritmos ha puesto de manifiesto que la definición 
+actual del problema es insuficiente para generar un frente de Pareto significativo, y que la ausencia de un objetivo explícito de 
 sincronización conduce inevitablemente a soluciones degeneradas. Este diagnóstico constituye un resultado valioso del trabajo, ya 
 que orienta de forma precisa los pasos necesarios para una futura reformulación del problema. \\
 
-Además, este proceso ha revelado un aspecto fundamental en optimización: \textbf{comprender por qué un algoritmo funciona 
-o deja de funcionar es tan importante como obtener buenos resultados numéricos}. El análisis detallado del comportamiento de los 
+Además, este proceso ha revelado un aspecto fundamental en optimización: comprender por qué un algoritmo funciona 
+o deja de funcionar es tan importante como obtener buenos resultados numéricos. El análisis detallado del comportamiento de los 
 métodos empleados ha permitido desentrañar las limitaciones del planteamiento, identificar los elementos críticos del modelo y 
 reconocer qué información adicional sería necesaria para que el proceso de optimización fuese realmente efectivo. Esta comprensión 
 profunda del problema y de los algoritmos constituye un aprendizaje esencial y transferible a cualquier escenario de optimización 
 en ingeniería. \\
 
-Un aspecto clave que ha emergido durante el desarrollo del trabajo es la \textbf{importancia de disponer de una cinemática inversa 
-analítica, estable y bien definida}. Los algoritmos evolutivos requieren evaluar miles de soluciones por generación, y cualquier 
+Un aspecto clave que ha emergido durante el desarrollo del trabajo es la importancia de disponer de una cinemática inversa 
+analítica, estable y bien definida. Los algoritmos utilizados requieren evaluar miles de soluciones por generación, y cualquier 
 incertidumbre, discontinuidad, ambigüedad o alto coste computacional en el cálculo de la cinemática inversa se traduce directamente
 en inestabilidad, ruido en la función 
 objetivo o incluso en la imposibilidad de comparar soluciones. La existencia de una solución analítica garantiza tiempos de 
 evaluación constantes, ausencia de errores numéricos acumulados y una correspondencia unívoca entre las variables de decisión y 
 los tiempos de ejecución. Sin esta base sólida, ningún algoritmo de optimización puede producir 
-resultados fiables. \\
+resultados fiables, por lo que ha sido necesario descomponer el problema en una arquitectura
+de dos niveles. \\
 
-De forma complementaria, el trabajo ha demostrado la necesidad de \textbf{disponer de datos correctamente documentados, 
-codificados y accesibles}. La calidad de los resultados depende directamente de la calidad del modelo: parámetros geométricos 
+De forma complementaria, el trabajo ha demostrado la necesidad de disponer de datos correctamente documentados, 
+codificados y accesibles. La calidad de los resultados depende directamente de la calidad del modelo: parámetros geométricos 
 claros, límites articulares bien definidos, convenciones homogéneas y funciones de evaluación reproducibles. La optimización no 
 puede suplir carencias en la definición del sistema; al contrario, las amplifica. Este proyecto evidencia que una buena 
 ingeniería de datos es un requisito previo indispensable para cualquier proceso de optimización avanzada. \\
 
-Los resultados muestran que las variables del Frente de Pareto presentan variaciones extremadamente pequeñas, con diferencias que 
+En la optimización multiobjetivo, los resultados muestran que las variables del frente de Pareto presentan variaciones extremadamente pequeñas, con diferencias que 
 se sitúan en órdenes de magnitud tan bajos como $10^{-4}$, $10^{-6}$ o incluso $10^{-9}$. Esta concentración tan extrema indica que 
 el algoritmo está trabajando con una precisión excesiva, lo que provoca que las soluciones converjan a una región prácticamente 
-puntual del espacio de decisión. Este comportamiento sugiere que, en trabajos futuros, sería conveniente \textbf{reducir la 
-precisión de la optimización}, por ejemplo limitando las variables continuas a dos decimales durante las evoluciones. Esta 
+puntual del espacio de decisión. Este comportamiento sugiere que, en trabajos futuros, sería conveniente reducir la 
+precisión de la optimización, por ejemplo limitando las variables continuas a dos decimales durante las evoluciones. Esta 
 discretización permitiría evitar la convergencia artificial hacia un único punto numérico, ampliar la exploración del espacio de 
 soluciones y obtener frentes más amplios y representativos. \\
 
-Finalmente, aunque los frentes obtenidos son extremadamente compactos, proporcionan una \textbf{gran cantidad de soluciones 
-óptimas equivalentes}. Esto constituye una ventaja importante: disponer de un conjunto amplio de soluciones permite
+Finalmente, aunque los frentes obtenidos son extremadamente compactos, proporcionan una gran cantidad de soluciones 
+óptimas equivalentes. Esto constituye una ventaja importante: disponer de un conjunto amplio de soluciones permite
 elegir la configuración más adecuada según criterios externos al modelo (seguridad, facilidad de 
 implementación, ergonomía, accesibilidad, etc.). En lugar de una única solución rígida, el sistema ofrece flexibilidad, 
 proporcionando alternativas igualmente válidas que pueden adaptarse mejor a las restricciones reales de la célula robótica. 
-Asimismo, los Frentes de Pareto podrían ser útiles para la generación de datos necesarios para el entrenamiento de redes 
+Asimismo, los frentes de Pareto podrían ser útiles para la generación de datos necesarios para el entrenamiento de redes 
 neuronales y sistemas de inteligencia artificial, donde disponer de múltiples soluciones óptimas es especialmente valioso. \\
 
 En conjunto, los resultados obtenidos no solo permiten diagnosticar las limitaciones del planteamiento actual, sino que también 
 ofrecen una guía clara para su mejora: reformulación de los objetivos, reducción de la precisión numérica, fortalecimiento de la 
 base geométrica y cinemática del modelo, y aprovechamiento de la riqueza de soluciones óptimas generadas. Estas conclusiones 
-constituyen una base sólida para continuar el desarrollo del modelo y obtener, en futuras iteraciones, un Frente de Pareto más 
-amplio, informativo y útil desde el punto de vista ingenieril.
+constituyen una base sólida para continuar el desarrollo del modelo y obtener, en futuras iteraciones, un frente de Pareto más 
+amplio, informativo y útil.
 
 

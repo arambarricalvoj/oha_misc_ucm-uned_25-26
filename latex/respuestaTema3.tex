@@ -17,26 +17,26 @@ resultados que el algoritmo de búsqueda local (\autoref{tab:tema2_tabla2}), val
 en la \autoref{tab:tema3_tabla2} para realizar la comparativa. \\
 
 El valor medio de $T_{\max}$ es
-de 1.31\,s, con una desviación típica moderada (0.23\,s), lo que indica que la variabilidad entre
+de $1.31$\,s, con una desviación típica moderada ($0.23$\,s), lo que indica que la variabilidad entre
 ejecuciones es aún más baja que en el tema anterior. Esto es un indicador de que el algoritmo ha
 sido más eficaz a la hora encontrar cuál es el espacio de modificaciones en el vector de soluciones para 
 satisfacer en mayor grado a la función objetivo. El mejor caso alcanza un tiempo de 0.86\,s: 
 \[(\mathbf{p}_A,\mathbf{p}_B,
 \mathbf{q}_A,\mathbf{q}_B,
-s_A,s_B,s_{rail}) = 
-((0.47, 0.05, 0.04), (0.67, 0.05, 0.04, p_{\text{raíl}} = 0.67), qA, qB, 0.55, 0.92, 0.88),\]
+s_A,s_B,s_{rail}) = \]
+\[((0.47, 0.05, 0.04), (0.67, 0.05, 0.04, p_{\text{raíl}} = 0.67), qA, qB, 0.55, 0.92, 0.88),\]
 
-mientras que el peor se sitúa en 1.67\,s, lo que define el rango completo de rendimiento del método. Del mismo
+mientras que el peor se sitúa en $1.67$\,s, lo que define el rango completo de rendimiento del método. Del mismo
 modo que en los resultados y conclusiones del tema anterior, es
 destacable recordar que resulta evidente que la mejor solución, es decir, aquella con menor tiempo
 de desplazamiento, se obtiene con la máxima velocidad de los robots. Esta situación está 
 introduciendo un sesgo al algoritmo para explorar únicamente perfiles elevados de velocidad, 
-reduciendo el espacio de búsqueda, provocando una posible convergecia prematura y priorizando la 
+reduciendo el espacio de búsqueda, provocando una posible convergencia prematura y priorizando la 
 minimización del tiempo a costa de ignorar criterios de calidad del movimiento que serían relevantes en un escenario real. 
 Consecuentemente, dos perfiles de velocidad toman valores cercanos al máximo. \\
 
 El intervalo de 
-confianza al 95\,\%, $[1.23,\,1.39]$\,s, confirma que, con alta probabilidad, el algoritmo converge
+confianza al 95\,\% es $[1.23,\,1.39]$\,s, confirma que, con alta probabilidad, el algoritmo converge
 de forma consistente en torno a valores próximos a la media. \\
 
 Por otro lado, el tiempo medio de ejecución del proceso completo es de 1.98\,s, lo que demuestra
@@ -74,6 +74,17 @@ Tiempo medio de ejecución (s) & \cellcolor{yellow!30}1.98 s & 0.83 & +138.6\% \
 \label{tab:tema3_tabla2}
 \end{table}
 
+Como se observa en la comparativa de la \autoref{tab:tema3_tabla2}, la transición de una búsqueda
+local (Tema 2) a una metaheurística poblacional ha supuesto una mejora sustancial en 
+todas las métricas de calidad. La Evolución Diferencial no solo ha 
+logrado soluciones un 21,6\% más rápidas en tiempo de ciclo $T_{max}$, sino 
+que ha demostrado ser un 54\% más estable con una reducción de $\sigma$ de $0.50$ a 
+$0.23$. Esta reducción a la mitad en la dispersión confirma que los mecanismos 
+de la DE, al trabajar sobre una población cuyos individuos interactúan entre sí, son 
+significativamente más robustos para capturar las complejas correlaciones geométricas y
+el acoplamiento de variables de este sistema de cobots.
+
+
 \begin{figure}[H]
   \centering
   \includegraphics[scale=0.27]{Images/tema3/boxplot_Tmax.png}
@@ -103,7 +114,7 @@ para los robots. En la \autoref{fig:visP_tema3} se visualizan en tres dimensione
 En la \autoref{fig:curvaMedia} se presenta la curva de convergencia del método, donde se observa
 que el algoritmo ha convergido a las 3 generaciones de las 150 que se realizan. Este resultado,
 aunque llamativo, no implica necesariamente una convergencia prematura. En realidad, es coherente
-con la naturaleza del problema: en esta fase, el espacio efectivo del vector de decisión se 
+con la naturaleza del problema: en esta fase (nivel 2), el espacio efectivo del vector de decisión se 
 reduce a un hipercubo de únicamente cuatro dimensiones (posición del raíl y tres factores de 
 velocidad) y la evaluación propuesta resulta trivial para el algoritmo. 
 En un dominio tan compacto, la evolución diferencial es capaz de desplazarse con 
@@ -129,12 +140,18 @@ punto de cooperación en el mismo instante. Esta coincidencia temporal solo pued
 los tiempos individuales se igualan en el menor valor posible compatible con la geometría del
 punto. En consecuencia, aunque el nivel 2 no modifica la posición espacial (que determina el
 tiempo mínimo alcanzable), sí minimiza el tiempo de ejecución dentro de ese punto al
-forzar la sincronización. \\
-
-Por este motivo, las curvas de convergencia representan la evolución
+forzar la sincronización. Por este motivo, las curvas de convergencia representan la evolución
 de la función de mérito $J$, que es la magnitud que realmente guía el proceso de optimización. \\
 
-Asimismo, dada la rapidez de convergencia del algoritmo, resulta interante evaluar también 
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.14]{Images/tema3/convergencia_J_media.png}
+  \caption{Curva media de convergecia de la evolución diferencial, donde se aprecia la disminución
+  de la penalización J.}
+  \label{fig:curvaMedia}
+\end{figure}
+
+Asimismo, dada la rapidez de convergencia del algoritmo, resulta interesante evaluar también 
 la evolución del tiempo máximo obtenido a lo largo de las generaciones. En la 
 \autoref{fig:curvaMediaT} se observa que el valor óptimo se obtiene habitualmente 
 a partir de la generación 50. Estos resultados se tienen que valorar conjuntamente con 
@@ -143,15 +160,7 @@ tercera generación, el algoritmo comienza a explotar la región óptima.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[scale=0.15]{Images/tema3/convergencia_J_media.png}
-  \caption{Curva media de convergecia de la evolución diferencial, donde se aprecia la disminución
-  de la penalización J.}
-  \label{fig:curvaMedia}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[scale=0.15]{Images/tema3/convergencia_Tmax_media}
+  \includegraphics[scale=0.14]{Images/tema3/convergencia_Tmax_media}
   \caption{Evolución del tiempo máximo de desplazamiento obtenido.}
   \label{fig:curvaMediaT}
 \end{figure}
@@ -160,9 +169,8 @@ tercera generación, el algoritmo comienza a explotar la región óptima.
 %En conjunto, estas métricas cuantitativas permiten concluir que el algoritmo no solo es eficaz
 %en términos de calidad de las soluciones (medida mediante $T_{\max}$), sino también robusto y 
 %estable en su comportamiento estadístico.
-\clearpage
 Para evaluar la sensibilidad del algoritmo frente a variaciones en los parámetros, 
-se aplicó un test no paramétrico de \textit{Kruskal--Wallis} \cite{hollander2013nonparametric} sobre las distribuciones de 
+se ha aplicado un test no paramétrico de \textit{Kruskal--Wallis} \cite{hollander2013nonparametric} sobre las distribuciones de 
 $T_{\text{máx}}$ obtenidas en las cuatro configuraciones analizadas. Este test contrasta la 
 hipótesis nula
 \[
@@ -276,9 +284,10 @@ puntos espaciales de \textit{rendezvous}. Sin embargo, esta extensión requiere 
 cinemática inversa analítica para los robots utilizados. La cinemática inversa numérica de la 
 \textit{Robotics Toolbox} de Peter Corke resulta computacionalmente demasiado costosa para el 
 número de evaluaciones necesarias, especialmente considerando la penalización asociada a la 
-singularidad en la función de mérito. Se exploró el uso de la librería \texttt{ssik}, que sí ofrece 
+singularidad en la función de mérito. Se ha explorado el uso de la librería \texttt{ssik}, que sí ofrece 
 soluciones analíticas para los manipuladores empleados, pero esta requiere \textit{Python} $\geq 3.11$, 
-mientras que la \textit{Robotics Toolbox} sólo es compatible con versiones anteriores. Esta 
+mientras que la \textit{Robotics Toolbox}, útil para el cálculo de jacobiano,
+entre otros, sólo es compatible con versiones anteriores. Esta 
 incompatibilidad hace que la integración de ambas herramientas requiera un trabajo adicional de 
 preparación y adaptación que queda fuera del alcance de la asignatura. \\
 
